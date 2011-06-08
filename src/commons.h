@@ -36,6 +36,8 @@ typedef struct
 
 		GdaConnection *gdacon;
 		GdaSqlParser *gdaparser;
+
+		gchar *prefix;
 	} Commons;
 
 #endif /* __COMMONS_H__ */

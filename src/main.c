@@ -29,6 +29,7 @@
 
 #include "commons.h"
 #include "openauditds.h"
+#include "roles.h"
 
 G_MODULE_EXPORT void on_mnu_file_close_activate (GtkMenuItem *menuitem,
                             gpointer user_data);
@@ -72,6 +73,17 @@ main_on_ds_opened (gpointer instance, const gchar *arg1, gpointer user_data)
 			return;
 		}
 
+	pos = g_strrstr (cnc, "{prefix}");
+	if (pos != NULL)
+		{
+			cnc = g_strndup (cnc, pos - cnc);
+			commons->prefix = g_strdup (pos + 8);
+		}
+	else
+		{
+			commons->prefix = g_strdup ("");
+		}
+
 	error = NULL;
 	commons->gdacon = gda_connection_open_from_string (NULL, cnc, NULL,
 	                                                   GDA_CONNECTION_OPTIONS_NONE,
@@ -99,6 +111,7 @@ main_on_ds_opened (gpointer instance, const gchar *arg1, gpointer user_data)
 		}
 
 	gtk_widget_set_sensitive (GTK_WIDGET (gtk_builder_get_object (commons->gtkbuilder, "menuitem2")), TRUE);
+	gtk_widget_set_sensitive (GTK_WIDGET (gtk_builder_get_object (commons->gtkbuilder, "menuitem3")), TRUE);
 
 	g_free (cnc);
 }
@@ -133,6 +146,20 @@ on_mnu_file_close_activate (GtkMenuItem *menuitem,
 	vbx_body_child = NULL;
 
 	gtk_widget_set_sensitive (GTK_WIDGET (gtk_builder_get_object (commons->gtkbuilder, "menuitem2")), FALSE);
+	gtk_widget_set_sensitive (GTK_WIDGET (gtk_builder_get_object (commons->gtkbuilder, "menuitem3")), FALSE);
+}
+
+G_MODULE_EXPORT void
+on_mnu_view_roles_activate (GtkMenuItem *menuitem,
+                            gpointer user_data)
+{
+	GtkWidget *vbx;
+
+	Roles *m = roles_new (commons, FALSE);
+
+	vbx = roles_get_widget (m);
+
+	main_set_vbx_body_child (vbx);
 }
 
 G_MODULE_EXPORT void
@@ -148,7 +175,7 @@ on_mnu_help_about_activate (GtkMenuItem *menuitem,
 	                                   &error);
 	if (error != NULL)
 		{
-			g_error ("Errore: %s.", error->message);
+			g_error ("Error: %s.", error->message);
 		}
 
 	diag = GTK_WIDGET (gtk_builder_get_object (commons->gtkbuilder, "dlg_about"));
@@ -203,7 +230,7 @@ main (int argc, char *argv[])
 	                                   &error);
 	if (error != NULL)
 		{
-			g_error ("Errore: %s", error->message);
+			g_error ("Error: %s", error->message);
 		}
 
 	gtk_builder_connect_signals (commons->gtkbuilder, NULL);
@@ -217,6 +244,7 @@ main (int argc, char *argv[])
 	gtk_widget_show (w);
 
 	gtk_widget_set_sensitive (GTK_WIDGET (gtk_builder_get_object (commons->gtkbuilder, "menuitem2")), FALSE);
+	gtk_widget_set_sensitive (GTK_WIDGET (gtk_builder_get_object (commons->gtkbuilder, "menuitem3")), FALSE);
 
 	if (argc > 0)
 		{

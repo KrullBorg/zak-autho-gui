@@ -109,15 +109,15 @@ OpenAuditDS
 
 	error = NULL;
 	gtk_builder_add_objects_from_file (priv->commons->gtkbuilder, priv->commons->guifile,
-	                                   g_strsplit ("w_open_audit_datasource", "|", -1),
+	                                   g_strsplit ("w_open_autoz_datasource", "|", -1),
 	                                   &error);
 	if (error != NULL)
 		{
-			g_warning ("Errore: %s.", error->message);
+			g_warning ("Error: %s.", error->message);
 			return NULL;
 		}
 
-	priv->w = GTK_WIDGET (gtk_builder_get_object (priv->commons->gtkbuilder, "w_open_audit_datasource"));
+	priv->w = GTK_WIDGET (gtk_builder_get_object (priv->commons->gtkbuilder, "w_open_autoz_datasource"));
 
 	g_signal_connect (gtk_builder_get_object (priv->commons->gtkbuilder, "button1"),
 	                  "clicked", G_CALLBACK (open_audit_ds_on_btn_cancel_clicked), (gpointer *)a);
@@ -134,10 +134,8 @@ OpenAuditDS
 	g_signal_connect (G_OBJECT (priv->wlogin), "changed",
 	                  G_CALLBACK (open_audit_ds_on_wlogin_changed), (gpointer *)a);
 
-	gtk_box_pack_start (GTK_BOX (gtk_builder_get_object (priv->commons->gtkbuilder, "vbox2")),
-	                    priv->wlogin, TRUE, TRUE, 0);
-	gtk_box_reorder_child (GTK_BOX (gtk_builder_get_object (priv->commons->gtkbuilder, "vbox2")),
-	                       priv->wlogin, 0);
+	gtk_container_add (GTK_CONTAINER (gtk_builder_get_object (priv->commons->gtkbuilder, "frame1")),
+	                    priv->wlogin);
 
 	gtk_widget_set_sensitive (GTK_WIDGET (gtk_builder_get_object (priv->commons->gtkbuilder, "button2")), FALSE);
 
@@ -162,7 +160,6 @@ static void
 open_audit_ds_set_property (GObject *object, guint property_id, const GValue *value, GParamSpec *pspec)
 {
 	OpenAuditDS *open_audit_ds = OPEN_AUDIT_DS (object);
-
 	OpenAuditDSPrivate *priv = OPEN_AUDIT_DS_GET_PRIVATE (open_audit_ds);
 
 	switch (property_id)
@@ -177,7 +174,6 @@ static void
 open_audit_ds_get_property (GObject *object, guint property_id, GValue *value, GParamSpec *pspec)
 {
 	OpenAuditDS *open_audit_ds = OPEN_AUDIT_DS (object);
-
 	OpenAuditDSPrivate *priv = OPEN_AUDIT_DS_GET_PRIVATE (open_audit_ds);
 
 	switch (property_id)
@@ -210,7 +206,6 @@ open_audit_ds_on_btn_cancel_clicked (GtkButton *button,
                                      gpointer user_data)
 {
 	OpenAuditDS *open_audit_ds = (OpenAuditDS *)user_data;
-
 	OpenAuditDSPrivate *priv = OPEN_AUDIT_DS_GET_PRIVATE (open_audit_ds);
 
 	gtk_widget_destroy (priv->w);
