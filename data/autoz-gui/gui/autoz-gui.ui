@@ -80,6 +80,7 @@
                         <property name="visible">True</property>
                         <property name="label" translatable="yes">Re_sources</property>
                         <property name="use_underline">True</property>
+                        <signal name="activate" handler="on_mnu_view_resources_activate"/>
                       </object>
                     </child>
                     <child>
@@ -288,6 +289,7 @@
     <property name="title" translatable="yes">Role - Autoz GUI</property>
     <property name="modal">True</property>
     <property name="window_position">center-on-parent</property>
+    <property name="default_width">500</property>
     <property name="destroy_with_parent">True</property>
     <child>
       <object class="GtkVBox" id="vbox3">
@@ -426,6 +428,8 @@
     <property name="title" translatable="yes">Roles - Autoz GUI</property>
     <property name="modal">True</property>
     <property name="window_position">center-on-parent</property>
+    <property name="default_width">550</property>
+    <property name="default_height">400</property>
     <property name="destroy_with_parent">True</property>
     <child>
       <object class="GtkVBox" id="vbox5">
@@ -590,6 +594,7 @@
     <property name="title" translatable="yes">Resource - Autoz GUI</property>
     <property name="modal">True</property>
     <property name="window_position">center-on-parent</property>
+    <property name="default_width">500</property>
     <property name="destroy_with_parent">True</property>
     <child>
       <object class="GtkVBox" id="vbox4">
@@ -644,7 +649,7 @@
               <object class="GtkEntry" id="entry2">
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
-                <property name="max_length">30</property>
+                <property name="max_length">255</property>
                 <property name="invisible_char">&#x2022;</property>
               </object>
               <packing>
@@ -712,6 +717,8 @@
     <property name="title" translatable="yes">Resources - Autoz GUI</property>
     <property name="modal">True</property>
     <property name="window_position">center-on-parent</property>
+    <property name="default_width">550</property>
+    <property name="default_height">400</property>
     <property name="destroy_with_parent">True</property>
     <child>
       <object class="GtkVBox" id="vbox7">

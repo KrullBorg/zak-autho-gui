@@ -13,6 +13,10 @@ autoz_gui_SOURCES = \
                 main.c \
                 openauditds.c \
                 openauditds.h \
+                resource.c \
+                resource.h \
+                resources.c \
+                resources.h \
                 role.c \
                 role.h \
                 roles.c \

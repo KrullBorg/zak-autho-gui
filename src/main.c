@@ -30,6 +30,7 @@
 #include "commons.h"
 #include "openauditds.h"
 #include "roles.h"
+#include "resources.h"
 
 G_MODULE_EXPORT void on_mnu_file_close_activate (GtkMenuItem *menuitem,
                             gpointer user_data);
@@ -158,6 +159,19 @@ on_mnu_view_roles_activate (GtkMenuItem *menuitem,
 	Roles *m = roles_new (commons, FALSE);
 
 	vbx = roles_get_widget (m);
+
+	main_set_vbx_body_child (vbx);
+}
+
+G_MODULE_EXPORT void
+on_mnu_view_resources_activate (GtkMenuItem *menuitem,
+                            gpointer user_data)
+{
+	GtkWidget *vbx;
+
+	Resources *m = resources_new (commons, FALSE);
+
+	vbx = resources_get_widget (m);
 
 	main_set_vbx_body_child (vbx);
 }
