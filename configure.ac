@@ -35,5 +35,6 @@ AC_CONFIG_FILES([
 	data/Makefile
 	data/autoz-gui/Makefile
 	data/autoz-gui/gui/Makefile
+	tests/Makefile
 ])
 AC_OUTPUT

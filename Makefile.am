@@ -1,4 +1,4 @@
-SUBDIRS = src data
+SUBDIRS = src data tests
 
 distclean-local:
 	if test "$(srcdir)" = "."; then :; else \
