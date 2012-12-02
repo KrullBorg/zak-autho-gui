@@ -1,5 +1,5 @@
 /* 
- * Copyright (C) 2011 Andrea Zagli <azagli@libero.it>
+ * Copyright (C) 2011-2012 Andrea Zagli <azagli@libero.it>
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -216,9 +216,10 @@ resource_save (Resource *resource)
 					new_id = g_value_get_int (gda_data_model_get_value_at (dm, 0, 0, NULL));
 				}
 			new_id++;
+			g_object_unref (dm);
 
 			sql = g_strdup_printf ("INSERT INTO %sresources (id, resource_id)"
-			                       " VALUES (%d, '%s',)",
+			                       " VALUES (%d, '%s')",
 			                       priv->commons->prefix,
 			                       new_id,
 			                       gtk_entry_get_text (GTK_ENTRY (gtk_builder_get_object (priv->commons->gtkbuilder, "entry2"))));

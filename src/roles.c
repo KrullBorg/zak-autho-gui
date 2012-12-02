@@ -1,5 +1,5 @@
 /* 
- * Copyright (C) 2011 Andrea Zagli <azagli@libero.it>
+ * Copyright (C) 2011-2012 Andrea Zagli <azagli@libero.it>
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -328,6 +328,7 @@ roles_on_btn_delete_clicked (GtkButton *button,
 			                                 GTK_BUTTONS_YES_NO,
 			                                 "Are you sure to want to delete the selected role?");
 			risp = gtk_dialog_run (GTK_DIALOG (dialog));
+			gtk_widget_destroy (dialog);
 			if (risp == GTK_RESPONSE_YES)
 				{
 					GError *error;
@@ -339,19 +340,23 @@ roles_on_btn_delete_clicked (GtkButton *button,
 
 					error = NULL;
 					stmt = gda_sql_parser_parse_string (priv->commons->gdaparser,
-					                                    g_strdup_printf ("DELETE %sroles WHERE id = %d", priv->commons->prefix, id),
-					                                    NULL, NULL);
+					                                    g_strdup_printf ("DELETE FROM %sroles WHERE id = %d", priv->commons->prefix, id),
+					                                    NULL, &error);
 
-					if (stmt != NULL)
+					if (stmt == NULL || error != NULL)
 						{
 							dialog = gtk_message_dialog_new (GTK_WINDOW (gtk_builder_get_object (priv->commons->gtkbuilder, "w_main")),
 							                                 GTK_DIALOG_DESTROY_WITH_PARENT,
 							                                 GTK_MESSAGE_WARNING,
 							                                 GTK_BUTTONS_OK,
-							                                 "You must select a role.");
+							                                 "You must select a role.%s",
+							                                 error != NULL && error->message != NULL ? g_strdup_printf ("\n\n%s", error->message) : "");
+							gtk_dialog_run (GTK_DIALOG (dialog));
+							gtk_widget_destroy (dialog);
 							return;
 						}
 
+					error = NULL;
 					if (gda_connection_statement_execute_non_select (priv->commons->gdacon, stmt, NULL, NULL, &error) <= 0)
 						{
 							dialog = gtk_message_dialog_new (GTK_WINDOW (gtk_builder_get_object (priv->commons->gtkbuilder, "w_main")),
@@ -360,11 +365,12 @@ roles_on_btn_delete_clicked (GtkButton *button,
 							                                 GTK_BUTTONS_OK,
 							                                 "Error on saving.\n\n%s",
 							                                 (error != NULL && error->message != NULL ? error->message : "No details."));
+							gtk_dialog_run (GTK_DIALOG (dialog));
+							gtk_widget_destroy (dialog);
 						}
 
 					roles_load (roles);
 				}
-			gtk_widget_destroy (dialog);
 		}
 	else
 		{

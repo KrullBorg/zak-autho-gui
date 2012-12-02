@@ -157,7 +157,7 @@
     <property name="has_separator">True</property>
     <property name="program_name">Autoz GUI</property>
     <property name="version">0.0.1</property>
-    <property name="copyright" translatable="yes">Andrea Zagli 2011</property>
+    <property name="copyright" translatable="yes">Andrea Zagli 2011-2012</property>
     <property name="authors">Andrea Zagli &lt;azagli@libero.it&gt;</property>
     <property name="wrap_license">True</property>
     <child internal-child="vbox">
