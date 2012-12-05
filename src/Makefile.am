@@ -9,6 +9,10 @@ LIBS = $(AUTOZGUI_LIBS) \
 bin_PROGRAMS = autoz-gui
 
 autoz_gui_SOURCES = \
+                authorization.c \
+                authorization.h \
+                authorizations.c \
+                authorizations.h \
                 commons.h \
                 main.c \
                 openauditds.c \

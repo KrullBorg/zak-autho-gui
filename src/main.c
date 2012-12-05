@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011 Andrea Zagli <azagli@libero.it>
+ * Copyright (C) 2011-2012 Andrea Zagli <azagli@libero.it>
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -31,6 +31,7 @@
 #include "openauditds.h"
 #include "roles.h"
 #include "resources.h"
+#include "authorizations.h"
 
 G_MODULE_EXPORT void on_mnu_file_close_activate (GtkMenuItem *menuitem,
                             gpointer user_data);
@@ -172,6 +173,19 @@ on_mnu_view_resources_activate (GtkMenuItem *menuitem,
 	Resources *m = resources_new (commons, FALSE);
 
 	vbx = resources_get_widget (m);
+
+	main_set_vbx_body_child (vbx);
+}
+
+G_MODULE_EXPORT void
+on_mnu_view_authorizations_activate (GtkMenuItem *menuitem,
+                            gpointer user_data)
+{
+	GtkWidget *vbx;
+
+	Authorizations *m = authorizations_new (commons, FALSE);
+
+	vbx = authorizations_get_widget (m);
 
 	main_set_vbx_body_child (vbx);
 }
