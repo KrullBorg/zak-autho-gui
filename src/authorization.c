@@ -223,6 +223,8 @@ authorization_save (Authorization *authorization)
 			new_id++;
 			g_object_unref (dm);
 
+			gtk_label_set_text (GTK_LABEL (gtk_builder_get_object (priv->commons->gtkbuilder, "label12")), g_strdup_printf ("%d", new_id));
+
 			sql = g_strdup_printf ("INSERT INTO %srules"
 			                       " (id, id_roles, id_resources, type)"
 			                       " VALUES (%d, %d, %d, %d)",

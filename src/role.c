@@ -219,6 +219,8 @@ role_save (Role *role)
 			new_id++;
 			g_object_unref (dm);
 
+			gtk_label_set_text (GTK_LABEL (gtk_builder_get_object (priv->commons->gtkbuilder, "label2")), g_strdup_printf ("%d", new_id));
+
 			sql = g_strdup_printf ("INSERT INTO %sroles (id, role_id)"
 			                       " VALUES (%d, '%s')",
 			                       priv->commons->prefix,
