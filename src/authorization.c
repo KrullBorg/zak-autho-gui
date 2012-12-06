@@ -161,13 +161,14 @@ authorization_load (Authorization *authorization)
 	GdaStatement *stmt;
 	GdaDataModel *dm;
 
-	sql = g_strdup_printf ("SELECT id_roles, id_resource, type"
+	sql = g_strdup_printf ("SELECT id_roles, id_resources, type"
 	                       " FROM %srules"
 	                       " WHERE id = %d",
 	                       priv->commons->prefix,
 	                       priv->id);
 	stmt = gda_sql_parser_parse_string (priv->commons->gdaparser, sql, NULL, NULL);
 	g_free (sql);
+	error = NULL;
 	dm = gda_connection_statement_execute_select (priv->commons->gdacon, stmt, NULL, &error);
 	g_object_unref (stmt);
 	if (dm != NULL && gda_data_model_get_n_rows (dm) == 1)

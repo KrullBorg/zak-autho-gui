@@ -166,6 +166,7 @@ resource_load (Resource *resource)
 	                       priv->id);
 	stmt = gda_sql_parser_parse_string (priv->commons->gdaparser, sql, NULL, NULL);
 	g_free (sql);
+	error = NULL;
 	dm = gda_connection_statement_execute_select (priv->commons->gdacon, stmt, NULL, &error);
 	g_object_unref (stmt);
 	if (dm != NULL && gda_data_model_get_n_rows (dm) == 1)

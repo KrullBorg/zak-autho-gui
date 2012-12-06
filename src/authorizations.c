@@ -189,7 +189,7 @@ authorizations_load (Authorizations *authorizations)
 	                       " ru.type"
 	                       " FROM %srules AS ru"
 	                       " INNER JOIN %sroles AS ro ON ru.id_roles = ro.id"
-	                       " INNER JOIN %sresources AS re ON ru.id_resources = re.id"
+	                       " LEFT JOIN %sresources AS re ON ru.id_resources = re.id"
 	                       " ORDER BY ro.role_id, re.resource_id, ru.type",
 	                       priv->commons->prefix,
 	                       priv->commons->prefix,
@@ -241,7 +241,7 @@ authorizations_edit (Authorizations *authorizations)
 			g_signal_connect (G_OBJECT (c), "updated",
 			                  G_CALLBACK (authorizations_on_authorization_updated), (gpointer)authorizations);
 
-			w = role_get_widget (c);
+			w = authorization_get_widget (c);
 			gtk_window_set_transient_for (GTK_WINDOW (w), GTK_WINDOW (gtk_builder_get_object (priv->commons->gtkbuilder, "w_main")));
 			gtk_widget_show_all (w);
 		}
