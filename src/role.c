@@ -202,6 +202,18 @@ role_save (Role *role)
 
 	RolePrivate *priv = ROLE_GET_PRIVATE (role);
 
+	if (g_strcmp0 (gtk_entry_get_text (GTK_ENTRY (gtk_builder_get_object (priv->commons->gtkbuilder, "entry1"))), "") == 0)
+		{
+			dialog = gtk_message_dialog_new (GTK_WINDOW (priv->w),
+			                                 GTK_DIALOG_DESTROY_WITH_PARENT,
+			                                 GTK_MESSAGE_INFO,
+			                                 GTK_BUTTONS_OK,
+			                                 "Insert the name of the role.");
+			gtk_dialog_run (GTK_DIALOG (dialog));
+			gtk_widget_destroy (dialog);
+			return;
+		}
+
 	if (priv->id == 0)
 		{
 			/* find the new id */

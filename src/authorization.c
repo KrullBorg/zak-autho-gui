@@ -21,12 +21,20 @@
 #include <sql-parser/gda-sql-parser.h>
 
 #include "authorization.h"
+#include "roles.h"
+#include "resources.h"
 
 static void authorization_class_init (AuthorizationClass *klass);
 static void authorization_init (Authorization *authorization);
 
 static void authorization_load (Authorization *authorization);
 static void authorization_save (Authorization *authorization);
+
+static void authorization_fill_role (Authorization *authorization);
+static void authorization_fill_resource (Authorization *authorization);
+
+static void authorization_on_role_selected (gpointer instance, guint id, gpointer user_data);
+static void authorization_on_resource_selected (gpointer instance, guint id, gpointer user_data);
 
 static void authorization_set_property (GObject *object,
                                      guint property_id,
@@ -36,6 +44,11 @@ static void authorization_get_property (GObject *object,
                                      guint property_id,
                                      GValue *value,
                                      GParamSpec *pspec);
+
+static void authorization_on_btn_role_clicked (GtkButton *button,
+                                    gpointer user_data);
+static void authorization_on_btn_resource_clicked (GtkButton *button,
+                                    gpointer user_data);
 
 static void authorization_on_btn_cancel_clicked (GtkButton *button,
                                     gpointer user_data);
@@ -118,6 +131,11 @@ Authorization
 
 	priv->w = GTK_WIDGET (gtk_builder_get_object (priv->commons->gtkbuilder, "w_authorization"));
 
+	g_signal_connect (gtk_builder_get_object (priv->commons->gtkbuilder, "button23"),
+	                  "clicked", G_CALLBACK (authorization_on_btn_role_clicked), (gpointer *)a);
+	g_signal_connect (gtk_builder_get_object (priv->commons->gtkbuilder, "button22"),
+	                  "clicked", G_CALLBACK (authorization_on_btn_resource_clicked), (gpointer *)a);
+
 	g_signal_connect (gtk_builder_get_object (priv->commons->gtkbuilder, "button20"),
 	                  "clicked", G_CALLBACK (authorization_on_btn_cancel_clicked), (gpointer *)a);
 	g_signal_connect (gtk_builder_get_object (priv->commons->gtkbuilder, "button21"),
@@ -130,7 +148,8 @@ Authorization
 		}
 	else
 		{
-			gtk_label_set_text (GTK_LABEL (gtk_builder_get_object (priv->commons->gtkbuilder, "label12")), g_strdup_printf ("%d", priv->id));
+			gtk_label_set_text (GTK_LABEL (gtk_builder_get_object (priv->commons->gtkbuilder, "label12")),
+			                    g_strdup_printf ("%d", priv->id));
 			authorization_load (a);
 		}
 
@@ -177,6 +196,17 @@ authorization_load (Authorization *authorization)
 			                    gda_value_stringify (gda_data_model_get_value_at (dm, 0, 0, NULL)));
 			gtk_label_set_text (GTK_LABEL (gtk_builder_get_object (priv->commons->gtkbuilder, "label14")),
 			                    gda_value_stringify (gda_data_model_get_value_at (dm, 1, 0, NULL)));
+			if (g_value_get_int (gda_data_model_get_value_at (dm, 2, 0, NULL)) == 1)
+				{
+					gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (gtk_builder_get_object (priv->commons->gtkbuilder, "radiobutton1")), TRUE);
+				}
+			else
+				{
+					gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (gtk_builder_get_object (priv->commons->gtkbuilder, "radiobutton2")), TRUE);
+				}
+
+			authorization_fill_role (authorization);
+			authorization_fill_resource (authorization);
 		}
 	else
 		{
@@ -202,9 +232,32 @@ authorization_save (Authorization *authorization)
 	GdaDataModel *dm;
 	GtkWidget *dialog;
 
+	guint type;
+
 	AuthorizationClass *klass = AUTHORIZATION_GET_CLASS (authorization);
 
 	AuthorizationPrivate *priv = AUTHORIZATION_GET_PRIVATE (authorization);
+
+	if (gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (gtk_builder_get_object (priv->commons->gtkbuilder, "radiobutton1"))))
+		{
+			type = 1;
+		}
+	else
+		{
+			type = 2;
+		}
+
+	if (strtol (gtk_label_get_text (GTK_LABEL (gtk_builder_get_object (priv->commons->gtkbuilder, "label15"))), NULL, 10) == 0)
+		{
+			dialog = gtk_message_dialog_new (GTK_WINDOW (priv->w),
+			                                 GTK_DIALOG_DESTROY_WITH_PARENT,
+			                                 GTK_MESSAGE_INFO,
+			                                 GTK_BUTTONS_OK,
+			                                 "Select the role.");
+			gtk_dialog_run (GTK_DIALOG (dialog));
+			gtk_widget_destroy (dialog);
+			return;
+		}
 
 	if (priv->id == 0)
 		{
@@ -233,21 +286,21 @@ authorization_save (Authorization *authorization)
 			                       new_id,
 			                       strtol (gtk_label_get_text (GTK_LABEL (gtk_builder_get_object (priv->commons->gtkbuilder, "label15"))), NULL, 10),
 			                       strtol (gtk_label_get_text (GTK_LABEL (gtk_builder_get_object (priv->commons->gtkbuilder, "label14"))), NULL, 10),
-			                       0);
+			                       type);
 			stmt = gda_sql_parser_parse_string (priv->commons->gdaparser, sql, NULL, NULL);
 		}
 	else
 		{
 			sql = g_strdup_printf ("UPDATE %srules"
 			                       " SET"
-			                       " id_roles = %s,"
-			                       " id_resources = %s,"
-			                       " type = %s,"
+			                       " id_roles = %d,"
+			                       " id_resources = %d,"
+			                       " type = %d,"
 			                       " WHERE id = %d",
 			                       priv->commons->prefix,
 			                       strtol (gtk_label_get_text (GTK_LABEL (gtk_builder_get_object (priv->commons->gtkbuilder, "label15"))), NULL, 10),
 			                       strtol (gtk_label_get_text (GTK_LABEL (gtk_builder_get_object (priv->commons->gtkbuilder, "label14"))), NULL, 10),
-			                       0,
+			                       type,
 			                       priv->id);
 			stmt = gda_sql_parser_parse_string (priv->commons->gdaparser, sql, NULL, NULL);
 		}
@@ -292,6 +345,90 @@ authorization_save (Authorization *authorization)
 }
 
 static void
+authorization_fill_role (Authorization *authorization)
+{
+	GError *error;
+	gchar *sql;
+	GdaStatement *stmt;
+	GdaDataModel *dm;
+
+	AuthorizationPrivate *priv = AUTHORIZATION_GET_PRIVATE (authorization);
+
+	sql = g_strdup_printf ("SELECT role_id"
+	                       " FROM %sroles"
+	                       " WHERE id = %d",
+	                       priv->commons->prefix,
+	                       strtol (gtk_label_get_text (GTK_LABEL (gtk_builder_get_object (priv->commons->gtkbuilder, "label15"))), NULL, 10));
+	stmt = gda_sql_parser_parse_string (priv->commons->gdaparser, sql, NULL, NULL);
+	g_free (sql);
+	dm = gda_connection_statement_execute_select (priv->commons->gdacon, stmt, NULL, &error);
+	g_object_unref (stmt);
+	if (dm != NULL && gda_data_model_get_n_rows (dm) == 1)
+		{
+			gtk_entry_set_text (GTK_ENTRY (gtk_builder_get_object (priv->commons->gtkbuilder, "entry5")),
+			                    gda_value_stringify (gda_data_model_get_value_at (dm, 0, 0, NULL)));
+		}
+	else
+		{
+			gtk_entry_set_text (GTK_ENTRY (gtk_builder_get_object (priv->commons->gtkbuilder, "entry5")),
+			                    "");
+		}
+	g_object_unref (dm);
+}
+
+static void
+authorization_fill_resource (Authorization *authorization)
+{
+	GError *error;
+	gchar *sql;
+	GdaStatement *stmt;
+	GdaDataModel *dm;
+
+	AuthorizationPrivate *priv = AUTHORIZATION_GET_PRIVATE (authorization);
+
+	sql = g_strdup_printf ("SELECT resource_id"
+	                       " FROM %sresources"
+	                       " WHERE id = %d",
+	                       priv->commons->prefix,
+	                       strtol (gtk_label_get_text (GTK_LABEL (gtk_builder_get_object (priv->commons->gtkbuilder, "label14"))), NULL, 10));
+	stmt = gda_sql_parser_parse_string (priv->commons->gdaparser, sql, NULL, NULL);
+	g_free (sql);
+	dm = gda_connection_statement_execute_select (priv->commons->gdacon, stmt, NULL, &error);
+	g_object_unref (stmt);
+	if (dm != NULL && gda_data_model_get_n_rows (dm) == 1)
+		{
+			gtk_entry_set_text (GTK_ENTRY (gtk_builder_get_object (priv->commons->gtkbuilder, "entry4")),
+			                    gda_value_stringify (gda_data_model_get_value_at (dm, 0, 0, NULL)));
+		}
+	else
+		{
+			gtk_entry_set_text (GTK_ENTRY (gtk_builder_get_object (priv->commons->gtkbuilder, "entry4")),
+			                    "");
+		}
+	g_object_unref (dm);
+}
+
+static void
+authorization_on_role_selected (gpointer instance, guint id, gpointer user_data)
+{
+	Authorization *authorization = AUTHORIZATION (instance);
+	AuthorizationPrivate *priv = AUTHORIZATION_GET_PRIVATE (authorization);
+
+	gtk_label_set_text (GTK_LABEL (gtk_builder_get_object (priv->commons->gtkbuilder, "label15")),
+	                    g_strdup_printf ("%d", id));
+}
+
+static void
+authorization_on_resource_selected (gpointer instance, guint id, gpointer user_data)
+{
+	Authorization *authorization = AUTHORIZATION (instance);
+	AuthorizationPrivate *priv = AUTHORIZATION_GET_PRIVATE (authorization);
+
+	gtk_label_set_text (GTK_LABEL (gtk_builder_get_object (priv->commons->gtkbuilder, "label14")),
+	                    g_strdup_printf ("%d", id));
+}
+
+static void
 authorization_set_property (GObject *object, guint property_id, const GValue *value, GParamSpec *pspec)
 {
 	Authorization *authorization = AUTHORIZATION (object);
@@ -320,6 +457,44 @@ authorization_get_property (GObject *object, guint property_id, GValue *value, G
 }
 
 /* CALLBACK */
+static void
+authorization_on_btn_role_clicked (GtkButton *button,
+                        gpointer user_data)
+{
+	GtkWidget *w;
+
+	Authorization *authorization = (Authorization *)user_data;
+	AuthorizationPrivate *priv = AUTHORIZATION_GET_PRIVATE (authorization);
+
+	Roles *c = roles_new (priv->commons, TRUE);
+
+	g_signal_connect (G_OBJECT (c), "selezionato",
+	                  G_CALLBACK (authorization_on_role_selected), user_data);
+
+	w = roles_get_widget (c);
+	gtk_window_set_transient_for (GTK_WINDOW (w), GTK_WINDOW (priv->w));
+	gtk_widget_show (w);
+}
+
+static void
+authorization_on_btn_resource_clicked (GtkButton *button,
+                        gpointer user_data)
+{
+	GtkWidget *w;
+
+	Authorization *authorization = (Authorization *)user_data;
+	AuthorizationPrivate *priv = AUTHORIZATION_GET_PRIVATE (authorization);
+
+	Resources *c = resources_new (priv->commons, TRUE);
+
+	g_signal_connect (G_OBJECT (c), "selezionato",
+	                  G_CALLBACK (authorization_on_resource_selected), user_data);
+
+	w = resources_get_widget (c);
+	gtk_window_set_transient_for (GTK_WINDOW (w), GTK_WINDOW (priv->w));
+	gtk_widget_show (w);
+}
+
 static void
 authorization_on_btn_cancel_clicked (GtkButton *button,
                         gpointer user_data)
