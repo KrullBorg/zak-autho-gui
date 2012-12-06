@@ -48,7 +48,7 @@
       <column type="gchararray"/>
       <!-- column-name resource -->
       <column type="gchararray"/>
-      <!-- column-name allow_deny -->
+      <!-- column-name allow_deny_stock_pixbuf -->
       <column type="gchararray"/>
     </columns>
   </object>
@@ -436,13 +436,16 @@
                 </child>
                 <child>
                   <object class="GtkTreeViewColumn" id="treeviewcolumn4">
+                    <property name="sizing">autosize</property>
                     <property name="title">Allow/Deny</property>
+                    <property name="expand">True</property>
                     <property name="clickable">True</property>
+                    <property name="alignment">0.5</property>
                     <property name="sort_column_id">3</property>
                     <child>
-                      <object class="GtkCellRendererText" id="cellrenderertext5"/>
+                      <object class="GtkCellRendererPixbuf" id="cellrenderertext5"/>
                       <attributes>
-                        <attribute name="text">3</attribute>
+                        <attribute name="stock-id">3</attribute>
                       </attributes>
                     </child>
                   </object>

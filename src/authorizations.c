@@ -208,7 +208,7 @@ authorizations_load (Authorizations *authorizations)
 					                    COL_ID, g_value_get_int (gda_data_model_get_value_at (dm, 0, row, NULL)),
 					                    COL_ROLE, gda_value_stringify (gda_data_model_get_value_at (dm, 1, row, NULL)),
 					                    COL_RESOURCE, gda_value_stringify (gda_data_model_get_value_at (dm, 2, row, NULL)),
-					                    COL_TYPE, gda_value_stringify (gda_data_model_get_value_at (dm, 3, row, NULL)),
+					                    COL_TYPE, g_value_get_int (gda_data_model_get_value_at (dm, 3, row, NULL)) == 1 ? "gtk-yes" : "gtk-no",
 					                    -1);
 				}
 
