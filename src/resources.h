@@ -1,5 +1,5 @@
 /* 
- * Copyright (C) 2011 Andrea Zagli <azagli@libero.it>
+ * Copyright (C) 2011-2012 Andrea Zagli <azagli@libero.it>
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -17,8 +17,8 @@
  *
  */
 
-#ifndef __RESOURCES_H__
-#define __RESOURCES_H__
+#ifndef __AUTOZ_GUI_RESOURCES_H__
+#define __AUTOZ_GUI_RESOURCES_H__
 
 #include <glib.h>
 #include <glib-object.h>
@@ -30,34 +30,36 @@
 G_BEGIN_DECLS
 
 
-#define TYPE_RESOURCES                 (resources_get_type ())
-#define RESOURCES(obj)                 (G_TYPE_CHECK_INSTANCE_CAST ((obj), TYPE_RESOURCES, Resources))
-#define RESOURCES_CLASS(klass)         (G_TYPE_CHECK_CLASS_CAST ((klass), TYPE_RESOURCES, ResourcesClass))
-#define IS_RESOURCES(obj)              (G_TYPE_CHECK_INSTANCE_TYPE ((obj), TYPE_RESOURCES))
-#define IS_RESOURCES_CLASS(klass)      (G_TYPE_CHECK_CLASS_TYPE ((klass), TYPE_RESOURCES))
-#define RESOURCES_GET_CLASS(obj)       (G_TYPE_INSTANCE_GET_CLASS ((obj), TYPE_RESOURCES, ResourcesClass))
+#define TYPE_AUTOZ_GUI_RESOURCES                 (autoz_gui_resources_get_type ())
+#define AUTOZ_GUI_RESOURCES(obj)                 (G_TYPE_CHECK_INSTANCE_CAST ((obj), TYPE_AUTOZ_GUI_RESOURCES, AutozGuiResources))
+#define AUTOZ_GUI_RESOURCES_CLASS(klass)         (G_TYPE_CHECK_CLASS_CAST ((klass), TYPE_AUTOZ_GUI_RESOURCES, AutozGuiResourcesClass))
+#define IS_AUTOZ_GUI_RESOURCES(obj)              (G_TYPE_CHECK_INSTANCE_TYPE ((obj), TYPE_AUTOZ_GUI_RESOURCES))
+#define IS_AUTOZ_GUI_RESOURCES_CLASS(klass)      (G_TYPE_CHECK_CLASS_TYPE ((klass), TYPE_AUTOZ_GUI_RESOURCES))
+#define AUTOZ_GUI_RESOURCES_GET_CLASS(obj)       (G_TYPE_INSTANCE_GET_CLASS ((obj), TYPE_AUTOZ_GUI_RESOURCES, AutozGuiResourcesClass))
 
 
-typedef struct _Resources Resources;
-typedef struct _ResourcesClass ResourcesClass;
+typedef struct _AutozGuiResources AutozGuiResources;
+typedef struct _AutozGuiResourcesClass AutozGuiResourcesClass;
 
-struct _Resources
+struct _AutozGuiResources
 	{
 		GObject parent;
 	};
 
-struct _ResourcesClass
+struct _AutozGuiResourcesClass
 	{
 		GObjectClass parent_class;
+
+		guint selected_signal_id;
 	};
 
-GType resources_get_type (void) G_GNUC_CONST;
+GType autoz_gui_resources_get_type (void) G_GNUC_CONST;
 
-Resources *resources_new (AutozGuiCommons *commons, gboolean selection);
+AutozGuiResources *autoz_gui_resources_new (AutozGuiCommons *commons, gboolean selection);
 
-GtkWidget *resources_get_widget (Resources *resources);
+GtkWidget *autoz_gui_resources_get_widget (AutozGuiResources *resources);
 
 
 G_END_DECLS
 
-#endif /* __RESOURCES_H__ */
+#endif /* __AUTOZ_GUI_RESOURCES_H__ */

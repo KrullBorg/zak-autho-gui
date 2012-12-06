@@ -129,9 +129,9 @@ on_mnu_file_open_audit_ds_activate (GtkMenuItem *menuitem,
 			on_mnu_file_close_activate (NULL, user_data);
 		}
 
-	OpenAuditDS *m = open_audit_ds_new (commons);
+	AutozGuiOpenAuditDS *m = autoz_gui_open_audit_ds_new (commons);
 
-	vbx = open_audit_ds_get_widget (m);
+	vbx = autoz_gui_open_audit_ds_get_widget (m);
 
 	g_signal_connect (G_OBJECT (m), "opened",
 	                  G_CALLBACK (main_on_ds_opened), NULL);
@@ -157,9 +157,9 @@ on_mnu_view_roles_activate (GtkMenuItem *menuitem,
 {
 	GtkWidget *vbx;
 
-	Roles *m = roles_new (commons, FALSE);
+	AutozGuiRoles *m = autoz_gui_roles_new (commons, FALSE);
 
-	vbx = roles_get_widget (m);
+	vbx = autoz_gui_roles_get_widget (m);
 
 	main_set_vbx_body_child (vbx);
 }
@@ -170,9 +170,9 @@ on_mnu_view_resources_activate (GtkMenuItem *menuitem,
 {
 	GtkWidget *vbx;
 
-	Resources *m = resources_new (commons, FALSE);
+	AutozGuiResources *m = autoz_gui_resources_new (commons, FALSE);
 
-	vbx = resources_get_widget (m);
+	vbx = autoz_gui_resources_get_widget (m);
 
 	main_set_vbx_body_child (vbx);
 }
@@ -183,9 +183,9 @@ on_mnu_view_authorizations_activate (GtkMenuItem *menuitem,
 {
 	GtkWidget *vbx;
 
-	Authorizations *m = authorizations_new (commons, FALSE);
+	AutozGuiAuthorizations *m = autoz_gui_authorizations_new (commons, FALSE);
 
-	vbx = authorizations_get_widget (m);
+	vbx = autoz_gui_authorizations_get_widget (m);
 
 	main_set_vbx_body_child (vbx);
 }

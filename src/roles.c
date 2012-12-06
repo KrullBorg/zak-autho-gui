@@ -24,35 +24,36 @@
 #include "roles.h"
 #include "role.h"
 
-static void roles_class_init (RolesClass *klass);
-static void roles_init (Roles *roles);
+static void autoz_gui_roles_class_init (AutozGuiRolesClass *klass);
+static void autoz_gui_roles_init (AutozGuiRoles *roles);
 
-static void roles_load (Roles *roles);
-static void roles_edit (Roles *roles);
+static void autoz_gui_roles_load (AutozGuiRoles *roles);
+static void autoz_gui_roles_edit (AutozGuiRoles *roles);
 
-static void roles_on_role_updated (gpointer instance, gpointer user_data);
+static void autoz_gui_roles_selected (AutozGuiRoles *roles);
+static void autoz_gui_roles_on_role_updated (gpointer instance, gpointer user_data);
 
-static void roles_set_property (GObject *object,
+static void autoz_gui_roles_set_property (GObject *object,
                                      guint property_id,
                                      const GValue *value,
                                      GParamSpec *pspec);
-static void roles_get_property (GObject *object,
+static void autoz_gui_roles_get_property (GObject *object,
                                      guint property_id,
                                      GValue *value,
                                      GParamSpec *pspec);
 
-static void roles_on_btn_new_clicked (GtkButton *button,
+static void autoz_gui_roles_on_btn_new_clicked (GtkButton *button,
                       gpointer user_data);
-static void roles_on_btn_edit_clicked (GtkButton *button,
+static void autoz_gui_roles_on_btn_edit_clicked (GtkButton *button,
                       gpointer user_data);
-static void roles_on_btn_delete_clicked (GtkButton *button,
+static void autoz_gui_roles_on_btn_delete_clicked (GtkButton *button,
                         gpointer user_data);
-static void roles_on_trv_roles_row_activated (GtkTreeView *tree_view,
+static void autoz_gui_roles_on_trv_autoz_gui_roles_row_activated (GtkTreeView *tree_view,
                                              GtkTreePath *tree_path,
                                              GtkTreeViewColumn *column,
                                              gpointer user_data);
 
-#define ROLES_GET_PRIVATE(obj) (G_TYPE_INSTANCE_GET_PRIVATE ((obj), TYPE_ROLES, RolesPrivate))
+#define AUTOZ_GUI_ROLES_GET_PRIVATE(obj) (G_TYPE_INSTANCE_GET_PRIVATE ((obj), TYPE_AUTOZ_GUI_ROLES, AutozGuiRolesPrivate))
 
 enum
 {
@@ -60,53 +61,71 @@ enum
 	COL_NAME
 };
 
-typedef struct _RolesPrivate RolesPrivate;
-struct _RolesPrivate
+typedef struct _AutozGuiRolesPrivate AutozGuiRolesPrivate;
+struct _AutozGuiRolesPrivate
 	{
 		AutozGuiCommons *commons;
 
 		GtkWidget *widget;
 
-		GtkTreeSelection *selection;
+		GtkTreeSelection *sel_selection;
 		GtkListStore *lstore_roles;
+
+		gboolean selection;
 	};
 
-G_DEFINE_TYPE (Roles, roles, G_TYPE_OBJECT)
+G_DEFINE_TYPE (AutozGuiRoles, autoz_gui_roles, G_TYPE_OBJECT)
 
 static void
-roles_class_init (RolesClass *klass)
+autoz_gui_roles_class_init (AutozGuiRolesClass *klass)
 {
 	GObjectClass *object_class = G_OBJECT_CLASS (klass);
 
-	g_type_class_add_private (object_class, sizeof (RolesPrivate));
+	g_type_class_add_private (object_class, sizeof (AutozGuiRolesPrivate));
 
-	object_class->set_property = roles_set_property;
-	object_class->get_property = roles_get_property;
+	object_class->set_property = autoz_gui_roles_set_property;
+	object_class->get_property = autoz_gui_roles_get_property;
+
+	/**
+	 * Roles::selected:
+	 * @roles:
+	 *
+	 */
+	klass->selected_signal_id = g_signal_new ("selected",
+	                                               G_TYPE_FROM_CLASS (object_class),
+	                                               G_SIGNAL_RUN_LAST,
+	                                               0,
+	                                               NULL,
+	                                               NULL,
+	                                               g_cclosure_marshal_VOID__UINT,
+	                                               G_TYPE_NONE,
+	                                               1, G_TYPE_UINT);
 }
 
 static void
-roles_init (Roles *roles)
+autoz_gui_roles_init (AutozGuiRoles *roles)
 {
-	RolesPrivate *priv = ROLES_GET_PRIVATE (roles);
+	AutozGuiRolesPrivate *priv = AUTOZ_GUI_ROLES_GET_PRIVATE (roles);
 }
 
 /**
- * roles_new:
+ * autoz_gui_roles_new:
  * @commons:
  * @selection:
  *
- * Returns: the newly created #Roles object.
+ * Returns: the newly created #AutozGuiRoles object.
  */
-Roles
-*roles_new (AutozGuiCommons *commons, gboolean selection)
+AutozGuiRoles
+*autoz_gui_roles_new (AutozGuiCommons *commons, gboolean selection)
 {
 	GError *error;
 
-	Roles *a = ROLES (g_object_new (roles_get_type (), NULL));
+	AutozGuiRoles *a = AUTOZ_GUI_ROLES (g_object_new (autoz_gui_roles_get_type (), NULL));
 
-	RolesPrivate *priv = ROLES_GET_PRIVATE (a);
+	AutozGuiRolesPrivate *priv = AUTOZ_GUI_ROLES_GET_PRIVATE (a);
 
 	priv->commons = commons;
+	priv->selection = selection;
 
 	error = NULL;
 	gtk_builder_add_objects_from_file (priv->commons->gtkbuilder, priv->commons->guifile,
@@ -122,17 +141,17 @@ Roles
 		}
 
 	priv->widget = GTK_WIDGET (gtk_builder_get_object (priv->commons->gtkbuilder, (selection ? "w_roles" : "vbox5")));
-	priv->selection = gtk_tree_view_get_selection (GTK_TREE_VIEW (gtk_builder_get_object (priv->commons->gtkbuilder, "treeview2")));
+	priv->sel_selection = gtk_tree_view_get_selection (GTK_TREE_VIEW (gtk_builder_get_object (priv->commons->gtkbuilder, "treeview2")));
 	priv->lstore_roles = GTK_LIST_STORE (gtk_builder_get_object (priv->commons->gtkbuilder, "lstore_roles"));
 
 	g_signal_connect (gtk_builder_get_object (priv->commons->gtkbuilder, "button7"),
-	                  "clicked", G_CALLBACK (roles_on_btn_new_clicked), (gpointer)a);
+	                  "clicked", G_CALLBACK (autoz_gui_roles_on_btn_new_clicked), (gpointer)a);
 	g_signal_connect (gtk_builder_get_object (priv->commons->gtkbuilder, "button9"),
-	                  "clicked", G_CALLBACK (roles_on_btn_edit_clicked), (gpointer)a);
+	                  "clicked", G_CALLBACK (autoz_gui_roles_on_btn_edit_clicked), (gpointer)a);
 	g_signal_connect (gtk_builder_get_object (priv->commons->gtkbuilder, "button8"),
-	                  "clicked", G_CALLBACK (roles_on_btn_delete_clicked), (gpointer)a);
+	                  "clicked", G_CALLBACK (autoz_gui_roles_on_btn_delete_clicked), (gpointer)a);
 	g_signal_connect (gtk_builder_get_object (priv->commons->gtkbuilder, "treeview2"),
-	                  "row-activated", G_CALLBACK (roles_on_trv_roles_row_activated), (gpointer)a);
+	                  "row-activated", G_CALLBACK (autoz_gui_roles_on_trv_autoz_gui_roles_row_activated), (gpointer)a);
 
 	if (!selection)
 		{
@@ -140,31 +159,31 @@ Roles
 			gtk_widget_hide (GTK_WIDGET (gtk_builder_get_object (priv->commons->gtkbuilder, "button13")));
 		}
 
-	roles_load (a);
+	autoz_gui_roles_load (a);
 
 	return a;
 }
 
 /**
- * roles_get_widget:
+ * autoz_gui_roles_get_widget:
  * @roles:
  *
  */
 GtkWidget
-*roles_get_widget (Roles *roles)
+*autoz_gui_roles_get_widget (AutozGuiRoles *roles)
 {
-	RolesPrivate *priv;
+	AutozGuiRolesPrivate *priv;
 
-	g_return_val_if_fail (IS_ROLES (roles), NULL);
+	g_return_val_if_fail (IS_AUTOZ_GUI_ROLES (roles), NULL);
 
-	priv = ROLES_GET_PRIVATE (roles);
+	priv = AUTOZ_GUI_ROLES_GET_PRIVATE (roles);
 
 	return priv->widget;
 }
 
 /* PRIVATE */
 static void
-roles_load (Roles *roles)
+autoz_gui_roles_load (AutozGuiRoles *roles)
 {
 	GtkTreeIter iter;
 
@@ -177,7 +196,7 @@ roles_load (Roles *roles)
 	gint rows;
 	gint row;
 
-	RolesPrivate *priv = ROLES_GET_PRIVATE (roles);
+	AutozGuiRolesPrivate *priv = AUTOZ_GUI_ROLES_GET_PRIVATE (roles);
 
 	gtk_list_store_clear (priv->lstore_roles);
 
@@ -210,14 +229,14 @@ roles_load (Roles *roles)
 }
 
 static void
-roles_edit (Roles *roles)
+autoz_gui_roles_edit (AutozGuiRoles *roles)
 {
 	GtkTreeIter iter;
 	guint id;
 
-	RolesPrivate *priv = ROLES_GET_PRIVATE (roles);
+	AutozGuiRolesPrivate *priv = AUTOZ_GUI_ROLES_GET_PRIVATE (roles);
 
-	if (gtk_tree_selection_get_selected (priv->selection, NULL, &iter))
+	if (gtk_tree_selection_get_selected (priv->sel_selection, NULL, &iter))
 		{
 			GtkWidget *w;
 
@@ -225,18 +244,18 @@ roles_edit (Roles *roles)
 			                    COL_ID, &id,
 			                    -1);
 
-			Role *c = role_new (priv->commons, id);
+			AutozGuiRole *c = autoz_gui_role_new (priv->commons, id);
 
 			g_signal_connect (G_OBJECT (c), "updated",
-			                  G_CALLBACK (roles_on_role_updated), (gpointer)roles);
+			                  G_CALLBACK (autoz_gui_roles_on_role_updated), (gpointer)roles);
 
-			w = role_get_widget (c);
-			gtk_window_set_transient_for (GTK_WINDOW (w), GTK_WINDOW (gtk_builder_get_object (priv->commons->gtkbuilder, "w_main")));
+			w = autoz_gui_role_get_widget (c);
+			gtk_window_set_transient_for (GTK_WINDOW (w), priv->selection ? GTK_WINDOW (priv->widget) : GTK_WINDOW (gtk_builder_get_object (priv->commons->gtkbuilder, "w_main")));
 			gtk_widget_show_all (w);
 		}
 	else
 		{
-			GtkWidget *dialog = gtk_message_dialog_new (GTK_WINDOW (gtk_builder_get_object (priv->commons->gtkbuilder, "w_main")),
+			GtkWidget *dialog = gtk_message_dialog_new (priv->selection ? GTK_WINDOW (priv->widget) : GTK_WINDOW (gtk_builder_get_object (priv->commons->gtkbuilder, "w_main")),
 			                                            GTK_DIALOG_DESTROY_WITH_PARENT,
 			                                            GTK_MESSAGE_WARNING,
 			                                            GTK_BUTTONS_OK,
@@ -247,16 +266,48 @@ roles_edit (Roles *roles)
 }
 
 static void
-roles_on_role_updated (gpointer instance, gpointer user_data)
+autoz_gui_roles_on_role_updated (gpointer instance, gpointer user_data)
 {
-	roles_load ((Roles *)user_data);
+	autoz_gui_roles_load ((AutozGuiRoles *)user_data);
 }
 
 static void
-roles_set_property (GObject *object, guint property_id, const GValue *value, GParamSpec *pspec)
+autoz_gui_roles_selected (AutozGuiRoles *roles)
 {
-	Roles *roles = ROLES (object);
-	RolesPrivate *priv = ROLES_GET_PRIVATE (roles);
+	GtkTreeIter iter;
+	guint id;
+
+	AutozGuiRolesClass *klass = AUTOZ_GUI_ROLES_GET_CLASS (roles);
+	AutozGuiRolesPrivate *priv = AUTOZ_GUI_ROLES_GET_PRIVATE (roles);
+
+	if (gtk_tree_selection_get_selected (priv->sel_selection, NULL, &iter))
+		{
+			gtk_tree_model_get (GTK_TREE_MODEL (priv->lstore_roles), &iter,
+			                    COL_ID, &id,
+			                    -1);
+
+			g_signal_emit (G_OBJECT (roles), klass->selected_signal_id, 0, id);
+
+			gtk_widget_destroy (priv->widget);
+			g_object_unref (G_OBJECT (roles));
+		}
+	else
+		{
+			GtkWidget *dialog = gtk_message_dialog_new (priv->selection ? GTK_WINDOW (priv->widget) : GTK_WINDOW (gtk_builder_get_object (priv->commons->gtkbuilder, "w_main")),
+			                                            GTK_DIALOG_DESTROY_WITH_PARENT,
+			                                            GTK_MESSAGE_WARNING,
+			                                            GTK_BUTTONS_OK,
+			                                            "Select a role.");
+			gtk_dialog_run (GTK_DIALOG (dialog));
+			gtk_widget_destroy (dialog);
+		}
+}
+
+static void
+autoz_gui_roles_set_property (GObject *object, guint property_id, const GValue *value, GParamSpec *pspec)
+{
+	AutozGuiRoles *roles = AUTOZ_GUI_ROLES (object);
+	AutozGuiRolesPrivate *priv = AUTOZ_GUI_ROLES_GET_PRIVATE (roles);
 
 	switch (property_id)
 		{
@@ -267,10 +318,10 @@ roles_set_property (GObject *object, guint property_id, const GValue *value, GPa
 }
 
 static void
-roles_get_property (GObject *object, guint property_id, GValue *value, GParamSpec *pspec)
+autoz_gui_roles_get_property (GObject *object, guint property_id, GValue *value, GParamSpec *pspec)
 {
-	Roles *roles = ROLES (object);
-	RolesPrivate *priv = ROLES_GET_PRIVATE (roles);
+	AutozGuiRoles *roles = AUTOZ_GUI_ROLES (object);
+	AutozGuiRolesPrivate *priv = AUTOZ_GUI_ROLES_GET_PRIVATE (roles);
 
 	switch (property_id)
 		{
@@ -282,33 +333,33 @@ roles_get_property (GObject *object, guint property_id, GValue *value, GParamSpe
 
 /* CALLBACK */
 static void
-roles_on_btn_new_clicked (GtkButton *button,
+autoz_gui_roles_on_btn_new_clicked (GtkButton *button,
                       gpointer user_data)
 {
 	GtkWidget *w;
 
-	Roles *roles = (Roles *)user_data;
-	RolesPrivate *priv = ROLES_GET_PRIVATE (roles);
+	AutozGuiRoles *roles = (AutozGuiRoles *)user_data;
+	AutozGuiRolesPrivate *priv = AUTOZ_GUI_ROLES_GET_PRIVATE (roles);
 
-	Role *c = role_new (priv->commons, 0);
+	AutozGuiRole *c = autoz_gui_role_new (priv->commons, 0);
 
 	g_signal_connect (G_OBJECT (c), "updated",
-	                  G_CALLBACK (roles_on_role_updated), (gpointer)roles);
+	                  G_CALLBACK (autoz_gui_roles_on_role_updated), (gpointer)roles);
 
-	w = role_get_widget (c);
-	gtk_window_set_transient_for (GTK_WINDOW (w), GTK_WINDOW (gtk_builder_get_object (priv->commons->gtkbuilder, "w_main")));
+	w = autoz_gui_role_get_widget (c);
+	gtk_window_set_transient_for (GTK_WINDOW (w), priv->selection ? GTK_WINDOW (priv->widget) : GTK_WINDOW (gtk_builder_get_object (priv->commons->gtkbuilder, "w_main")));
 	gtk_widget_show_all (w);
 }
 
 static void
-roles_on_btn_edit_clicked (GtkButton *button,
+autoz_gui_roles_on_btn_edit_clicked (GtkButton *button,
                       gpointer user_data)
 {
-	roles_edit ((Roles *)user_data);
+	autoz_gui_roles_edit ((AutozGuiRoles *)user_data);
 }
 
 static void
-roles_on_btn_delete_clicked (GtkButton *button,
+autoz_gui_roles_on_btn_delete_clicked (GtkButton *button,
                         gpointer user_data)
 {
 	GtkWidget *dialog;
@@ -317,12 +368,12 @@ roles_on_btn_delete_clicked (GtkButton *button,
 	GtkTreeIter iter;
 	guint id;
 
-	Roles *roles = (Roles *)user_data;
-	RolesPrivate *priv = ROLES_GET_PRIVATE (roles);
+	AutozGuiRoles *roles = (AutozGuiRoles *)user_data;
+	AutozGuiRolesPrivate *priv = AUTOZ_GUI_ROLES_GET_PRIVATE (roles);
 
-	if (gtk_tree_selection_get_selected (priv->selection, NULL, &iter))
+	if (gtk_tree_selection_get_selected (priv->sel_selection, NULL, &iter))
 		{
-			dialog = gtk_message_dialog_new (GTK_WINDOW (gtk_builder_get_object (priv->commons->gtkbuilder, "w_main")),
+			dialog = gtk_message_dialog_new (priv->selection ? GTK_WINDOW (priv->widget) : GTK_WINDOW (gtk_builder_get_object (priv->commons->gtkbuilder, "w_main")),
 			                                 GTK_DIALOG_DESTROY_WITH_PARENT,
 			                                 GTK_MESSAGE_QUESTION,
 			                                 GTK_BUTTONS_YES_NO,
@@ -345,7 +396,7 @@ roles_on_btn_delete_clicked (GtkButton *button,
 
 					if (stmt == NULL || error != NULL)
 						{
-							dialog = gtk_message_dialog_new (GTK_WINDOW (gtk_builder_get_object (priv->commons->gtkbuilder, "w_main")),
+							dialog = gtk_message_dialog_new (priv->selection ? GTK_WINDOW (priv->widget) : GTK_WINDOW (gtk_builder_get_object (priv->commons->gtkbuilder, "w_main")),
 							                                 GTK_DIALOG_DESTROY_WITH_PARENT,
 							                                 GTK_MESSAGE_WARNING,
 							                                 GTK_BUTTONS_OK,
@@ -359,7 +410,7 @@ roles_on_btn_delete_clicked (GtkButton *button,
 					error = NULL;
 					if (gda_connection_statement_execute_non_select (priv->commons->gdacon, stmt, NULL, NULL, &error) <= 0)
 						{
-							dialog = gtk_message_dialog_new (GTK_WINDOW (gtk_builder_get_object (priv->commons->gtkbuilder, "w_main")),
+							dialog = gtk_message_dialog_new (priv->selection ? GTK_WINDOW (priv->widget) : GTK_WINDOW (gtk_builder_get_object (priv->commons->gtkbuilder, "w_main")),
 							                                 GTK_DIALOG_DESTROY_WITH_PARENT,
 							                                 GTK_MESSAGE_WARNING,
 							                                 GTK_BUTTONS_OK,
@@ -369,12 +420,12 @@ roles_on_btn_delete_clicked (GtkButton *button,
 							gtk_widget_destroy (dialog);
 						}
 
-					roles_load (roles);
+					autoz_gui_roles_load (roles);
 				}
 		}
 	else
 		{
-			dialog = gtk_message_dialog_new (GTK_WINDOW (gtk_builder_get_object (priv->commons->gtkbuilder, "w_main")),
+			dialog = gtk_message_dialog_new (priv->selection ? GTK_WINDOW (priv->widget) : GTK_WINDOW (gtk_builder_get_object (priv->commons->gtkbuilder, "w_main")),
 			                                 GTK_DIALOG_DESTROY_WITH_PARENT,
 			                                 GTK_MESSAGE_WARNING,
 			                                 GTK_BUTTONS_OK,
@@ -385,12 +436,19 @@ roles_on_btn_delete_clicked (GtkButton *button,
 }
 
 static void
-roles_on_trv_roles_row_activated (GtkTreeView *tree_view,
+autoz_gui_roles_on_trv_autoz_gui_roles_row_activated (GtkTreeView *tree_view,
                                              GtkTreePath *tree_path,
                                              GtkTreeViewColumn *column,
                                              gpointer user_data)
 {
-	RolesPrivate *priv = ROLES_GET_PRIVATE ((Roles *)user_data);
+	AutozGuiRolesPrivate *priv = AUTOZ_GUI_ROLES_GET_PRIVATE ((AutozGuiRoles *)user_data);
 
-	roles_edit ((Roles *)user_data);
+	if (priv->selection)
+		{
+			autoz_gui_roles_selected ((AutozGuiRoles *)user_data);
+		}
+	else
+		{
+			autoz_gui_roles_edit ((AutozGuiRoles *)user_data);
+		}
 }

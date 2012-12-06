@@ -24,35 +24,35 @@
 #include "authorizations.h"
 #include "authorization.h"
 
-static void authorizations_class_init (AuthorizationsClass *klass);
-static void authorizations_init (Authorizations *authorizations);
+static void autoz_gui_authorizations_class_init (AutozGuiAuthorizationsClass *klass);
+static void autoz_gui_authorizations_init (AutozGuiAuthorizations *authorizations);
 
-static void authorizations_load (Authorizations *authorizations);
-static void authorizations_edit (Authorizations *authorizations);
+static void autoz_gui_authorizations_load (AutozGuiAuthorizations *authorizations);
+static void autoz_gui_authorizations_edit (AutozGuiAuthorizations *authorizations);
 
-static void authorizations_on_authorization_updated (gpointer instance, gpointer user_data);
+static void autoz_gui_authorizations_on_authorization_updated (gpointer instance, gpointer user_data);
 
-static void authorizations_set_property (GObject *object,
+static void autoz_gui_authorizations_set_property (GObject *object,
                                      guint property_id,
                                      const GValue *value,
                                      GParamSpec *pspec);
-static void authorizations_get_property (GObject *object,
+static void autoz_gui_authorizations_get_property (GObject *object,
                                      guint property_id,
                                      GValue *value,
                                      GParamSpec *pspec);
 
-static void authorizations_on_btn_new_clicked (GtkButton *button,
+static void autoz_gui_authorizations_on_btn_new_clicked (GtkButton *button,
                       gpointer user_data);
-static void authorizations_on_btn_edit_clicked (GtkButton *button,
+static void autoz_gui_authorizations_on_btn_edit_clicked (GtkButton *button,
                       gpointer user_data);
-static void authorizations_on_btn_delete_clicked (GtkButton *button,
+static void autoz_gui_authorizations_on_btn_delete_clicked (GtkButton *button,
                         gpointer user_data);
-static void authorizations_on_trv_authorizations_row_activated (GtkTreeView *tree_view,
+static void autoz_gui_authorizations_on_trv_autoz_gui_authorizations_row_activated (GtkTreeView *tree_view,
                                              GtkTreePath *tree_path,
                                              GtkTreeViewColumn *column,
                                              gpointer user_data);
 
-#define AUTHORIZATIONS_GET_PRIVATE(obj) (G_TYPE_INSTANCE_GET_PRIVATE ((obj), TYPE_AUTHORIZATIONS, AuthorizationsPrivate))
+#define AUTOZ_GUI_AUTHORIZATIONS_GET_PRIVATE(obj) (G_TYPE_INSTANCE_GET_PRIVATE ((obj), TYPE_AUTOZ_GUI_AUTHORIZATIONS, AutozGuiAuthorizationsPrivate))
 
 enum
 {
@@ -62,8 +62,8 @@ enum
 	COL_TYPE
 };
 
-typedef struct _AuthorizationsPrivate AuthorizationsPrivate;
-struct _AuthorizationsPrivate
+typedef struct _AutozGuiAuthorizationsPrivate AutozGuiAuthorizationsPrivate;
+struct _AutozGuiAuthorizationsPrivate
 	{
 		AutozGuiCommons *commons;
 
@@ -73,40 +73,40 @@ struct _AuthorizationsPrivate
 		GtkListStore *lstore_authorizations;
 	};
 
-G_DEFINE_TYPE (Authorizations, authorizations, G_TYPE_OBJECT)
+G_DEFINE_TYPE (AutozGuiAuthorizations, autoz_gui_authorizations, G_TYPE_OBJECT)
 
 static void
-authorizations_class_init (AuthorizationsClass *klass)
+autoz_gui_authorizations_class_init (AutozGuiAuthorizationsClass *klass)
 {
 	GObjectClass *object_class = G_OBJECT_CLASS (klass);
 
-	g_type_class_add_private (object_class, sizeof (AuthorizationsPrivate));
+	g_type_class_add_private (object_class, sizeof (AutozGuiAuthorizationsPrivate));
 
-	object_class->set_property = authorizations_set_property;
-	object_class->get_property = authorizations_get_property;
+	object_class->set_property = autoz_gui_authorizations_set_property;
+	object_class->get_property = autoz_gui_authorizations_get_property;
 }
 
 static void
-authorizations_init (Authorizations *authorizations)
+autoz_gui_authorizations_init (AutozGuiAuthorizations *authorizations)
 {
-	AuthorizationsPrivate *priv = AUTHORIZATIONS_GET_PRIVATE (authorizations);
+	AutozGuiAuthorizationsPrivate *priv = AUTOZ_GUI_AUTHORIZATIONS_GET_PRIVATE (authorizations);
 }
 
 /**
- * authorizations_new:
+ * autoz_gui_authorizations_new:
  * @commons:
  * @selection:
  *
- * Returns: the newly created #Authorizations object.
+ * Returns: the newly created #AutozGuiAuthorizations object.
  */
-Authorizations
-*authorizations_new (AutozGuiCommons *commons, gboolean selection)
+AutozGuiAuthorizations
+*autoz_gui_authorizations_new (AutozGuiCommons *commons, gboolean selection)
 {
 	GError *error;
 
-	Authorizations *a = AUTHORIZATIONS (g_object_new (authorizations_get_type (), NULL));
+	AutozGuiAuthorizations *a = AUTOZ_GUI_AUTHORIZATIONS (g_object_new (autoz_gui_authorizations_get_type (), NULL));
 
-	AuthorizationsPrivate *priv = AUTHORIZATIONS_GET_PRIVATE (a);
+	AutozGuiAuthorizationsPrivate *priv = AUTOZ_GUI_AUTHORIZATIONS_GET_PRIVATE (a);
 
 	priv->commons = commons;
 
@@ -128,13 +128,13 @@ Authorizations
 	priv->lstore_authorizations = GTK_LIST_STORE (gtk_builder_get_object (priv->commons->gtkbuilder, "lstore_authorizations"));
 
 	g_signal_connect (gtk_builder_get_object (priv->commons->gtkbuilder, "button17"),
-	                  "clicked", G_CALLBACK (authorizations_on_btn_new_clicked), (gpointer)a);
+	                  "clicked", G_CALLBACK (autoz_gui_authorizations_on_btn_new_clicked), (gpointer)a);
 	g_signal_connect (gtk_builder_get_object (priv->commons->gtkbuilder, "button18"),
-	                  "clicked", G_CALLBACK (authorizations_on_btn_edit_clicked), (gpointer)a);
+	                  "clicked", G_CALLBACK (autoz_gui_authorizations_on_btn_edit_clicked), (gpointer)a);
 	g_signal_connect (gtk_builder_get_object (priv->commons->gtkbuilder, "button19"),
-	                  "clicked", G_CALLBACK (authorizations_on_btn_delete_clicked), (gpointer)a);
+	                  "clicked", G_CALLBACK (autoz_gui_authorizations_on_btn_delete_clicked), (gpointer)a);
 	g_signal_connect (gtk_builder_get_object (priv->commons->gtkbuilder, "treeview3"),
-	                  "row-activated", G_CALLBACK (authorizations_on_trv_authorizations_row_activated), (gpointer)a);
+	                  "row-activated", G_CALLBACK (autoz_gui_authorizations_on_trv_autoz_gui_authorizations_row_activated), (gpointer)a);
 
 	if (!selection)
 		{
@@ -142,31 +142,31 @@ Authorizations
 			gtk_widget_hide (GTK_WIDGET (gtk_builder_get_object (priv->commons->gtkbuilder, "button13")));*/
 		}
 
-	authorizations_load (a);
+	autoz_gui_authorizations_load (a);
 
 	return a;
 }
 
 /**
- * authorizations_get_widget:
+ * autoz_gui_authorizations_get_widget:
  * @authorizations:
  *
  */
 GtkWidget
-*authorizations_get_widget (Authorizations *authorizations)
+*autoz_gui_authorizations_get_widget (AutozGuiAuthorizations *authorizations)
 {
-	AuthorizationsPrivate *priv;
+	AutozGuiAuthorizationsPrivate *priv;
 
-	g_return_val_if_fail (IS_AUTHORIZATIONS (authorizations), NULL);
+	g_return_val_if_fail (IS_AUTOZ_GUI_AUTHORIZATIONS (authorizations), NULL);
 
-	priv = AUTHORIZATIONS_GET_PRIVATE (authorizations);
+	priv = AUTOZ_GUI_AUTHORIZATIONS_GET_PRIVATE (authorizations);
 
 	return priv->widget;
 }
 
 /* PRIVATE */
 static void
-authorizations_load (Authorizations *authorizations)
+autoz_gui_authorizations_load (AutozGuiAuthorizations *authorizations)
 {
 	GtkTreeIter iter;
 
@@ -179,7 +179,7 @@ authorizations_load (Authorizations *authorizations)
 	gint rows;
 	gint row;
 
-	AuthorizationsPrivate *priv = AUTHORIZATIONS_GET_PRIVATE (authorizations);
+	AutozGuiAuthorizationsPrivate *priv = AUTOZ_GUI_AUTHORIZATIONS_GET_PRIVATE (authorizations);
 
 	gtk_list_store_clear (priv->lstore_authorizations);
 
@@ -221,12 +221,12 @@ authorizations_load (Authorizations *authorizations)
 }
 
 static void
-authorizations_edit (Authorizations *authorizations)
+autoz_gui_authorizations_edit (AutozGuiAuthorizations *authorizations)
 {
 	GtkTreeIter iter;
 	guint id;
 
-	AuthorizationsPrivate *priv = AUTHORIZATIONS_GET_PRIVATE (authorizations);
+	AutozGuiAuthorizationsPrivate *priv = AUTOZ_GUI_AUTHORIZATIONS_GET_PRIVATE (authorizations);
 
 	if (gtk_tree_selection_get_selected (priv->selection, NULL, &iter))
 		{
@@ -236,12 +236,12 @@ authorizations_edit (Authorizations *authorizations)
 			                    COL_ID, &id,
 			                    -1);
 
-			Authorization *c = authorization_new (priv->commons, id);
+			AutozGuiAuthorization *c = autoz_gui_authorization_new (priv->commons, id);
 
 			g_signal_connect (G_OBJECT (c), "updated",
-			                  G_CALLBACK (authorizations_on_authorization_updated), (gpointer)authorizations);
+			                  G_CALLBACK (autoz_gui_authorizations_on_authorization_updated), (gpointer)authorizations);
 
-			w = authorization_get_widget (c);
+			w = autoz_gui_authorization_get_widget (c);
 			gtk_window_set_transient_for (GTK_WINDOW (w), GTK_WINDOW (gtk_builder_get_object (priv->commons->gtkbuilder, "w_main")));
 			gtk_widget_show_all (w);
 		}
@@ -258,16 +258,16 @@ authorizations_edit (Authorizations *authorizations)
 }
 
 static void
-authorizations_on_authorization_updated (gpointer instance, gpointer user_data)
+autoz_gui_authorizations_on_authorization_updated (gpointer instance, gpointer user_data)
 {
-	authorizations_load ((Authorizations *)user_data);
+	autoz_gui_authorizations_load ((AutozGuiAuthorizations *)user_data);
 }
 
 static void
-authorizations_set_property (GObject *object, guint property_id, const GValue *value, GParamSpec *pspec)
+autoz_gui_authorizations_set_property (GObject *object, guint property_id, const GValue *value, GParamSpec *pspec)
 {
-	Authorizations *authorizations = AUTHORIZATIONS (object);
-	AuthorizationsPrivate *priv = AUTHORIZATIONS_GET_PRIVATE (authorizations);
+	AutozGuiAuthorizations *authorizations = AUTOZ_GUI_AUTHORIZATIONS (object);
+	AutozGuiAuthorizationsPrivate *priv = AUTOZ_GUI_AUTHORIZATIONS_GET_PRIVATE (authorizations);
 
 	switch (property_id)
 		{
@@ -278,10 +278,10 @@ authorizations_set_property (GObject *object, guint property_id, const GValue *v
 }
 
 static void
-authorizations_get_property (GObject *object, guint property_id, GValue *value, GParamSpec *pspec)
+autoz_gui_authorizations_get_property (GObject *object, guint property_id, GValue *value, GParamSpec *pspec)
 {
-	Authorizations *authorizations = AUTHORIZATIONS (object);
-	AuthorizationsPrivate *priv = AUTHORIZATIONS_GET_PRIVATE (authorizations);
+	AutozGuiAuthorizations *authorizations = AUTOZ_GUI_AUTHORIZATIONS (object);
+	AutozGuiAuthorizationsPrivate *priv = AUTOZ_GUI_AUTHORIZATIONS_GET_PRIVATE (authorizations);
 
 	switch (property_id)
 		{
@@ -293,33 +293,33 @@ authorizations_get_property (GObject *object, guint property_id, GValue *value, 
 
 /* CALLBACK */
 static void
-authorizations_on_btn_new_clicked (GtkButton *button,
+autoz_gui_authorizations_on_btn_new_clicked (GtkButton *button,
                       gpointer user_data)
 {
 	GtkWidget *w;
 
-	Authorizations *authorizations = (Authorizations *)user_data;
-	AuthorizationsPrivate *priv = AUTHORIZATIONS_GET_PRIVATE (authorizations);
+	AutozGuiAuthorizations *authorizations = (AutozGuiAuthorizations *)user_data;
+	AutozGuiAuthorizationsPrivate *priv = AUTOZ_GUI_AUTHORIZATIONS_GET_PRIVATE (authorizations);
 
-	Authorization *c = authorization_new (priv->commons, 0);
+	AutozGuiAuthorization *c = autoz_gui_authorization_new (priv->commons, 0);
 
 	g_signal_connect (G_OBJECT (c), "updated",
-	                  G_CALLBACK (authorizations_on_authorization_updated), (gpointer)authorizations);
+	                  G_CALLBACK (autoz_gui_authorizations_on_authorization_updated), (gpointer)authorizations);
 
-	w = authorization_get_widget (c);
+	w = autoz_gui_authorization_get_widget (c);
 	gtk_window_set_transient_for (GTK_WINDOW (w), GTK_WINDOW (gtk_builder_get_object (priv->commons->gtkbuilder, "w_main")));
 	gtk_widget_show_all (w);
 }
 
 static void
-authorizations_on_btn_edit_clicked (GtkButton *button,
+autoz_gui_authorizations_on_btn_edit_clicked (GtkButton *button,
                       gpointer user_data)
 {
-	authorizations_edit ((Authorizations *)user_data);
+	autoz_gui_authorizations_edit ((AutozGuiAuthorizations *)user_data);
 }
 
 static void
-authorizations_on_btn_delete_clicked (GtkButton *button,
+autoz_gui_authorizations_on_btn_delete_clicked (GtkButton *button,
                         gpointer user_data)
 {
 	GtkWidget *dialog;
@@ -328,8 +328,8 @@ authorizations_on_btn_delete_clicked (GtkButton *button,
 	GtkTreeIter iter;
 	guint id;
 
-	Authorizations *authorizations = (Authorizations *)user_data;
-	AuthorizationsPrivate *priv = AUTHORIZATIONS_GET_PRIVATE (authorizations);
+	AutozGuiAuthorizations *authorizations = (AutozGuiAuthorizations *)user_data;
+	AutozGuiAuthorizationsPrivate *priv = AUTOZ_GUI_AUTHORIZATIONS_GET_PRIVATE (authorizations);
 
 	if (gtk_tree_selection_get_selected (priv->selection, NULL, &iter))
 		{
@@ -380,7 +380,7 @@ authorizations_on_btn_delete_clicked (GtkButton *button,
 							gtk_widget_destroy (dialog);
 						}
 
-					authorizations_load (authorizations);
+					autoz_gui_authorizations_load (authorizations);
 				}
 		}
 	else
@@ -396,12 +396,12 @@ authorizations_on_btn_delete_clicked (GtkButton *button,
 }
 
 static void
-authorizations_on_trv_authorizations_row_activated (GtkTreeView *tree_view,
+autoz_gui_authorizations_on_trv_autoz_gui_authorizations_row_activated (GtkTreeView *tree_view,
                                              GtkTreePath *tree_path,
                                              GtkTreeViewColumn *column,
                                              gpointer user_data)
 {
-	AuthorizationsPrivate *priv = AUTHORIZATIONS_GET_PRIVATE ((Authorizations *)user_data);
+	AutozGuiAuthorizationsPrivate *priv = AUTOZ_GUI_AUTHORIZATIONS_GET_PRIVATE ((AutozGuiAuthorizations *)user_data);
 
-	authorizations_edit ((Authorizations *)user_data);
+	autoz_gui_authorizations_edit ((AutozGuiAuthorizations *)user_data);
 }

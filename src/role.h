@@ -1,5 +1,5 @@
 /* 
- * Copyright (C) 2011 Andrea Zagli <azagli@libero.it>
+ * Copyright (C) 2011-2012 Andrea Zagli <azagli@libero.it>
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -17,8 +17,8 @@
  *
  */
 
-#ifndef __ROLE_H__
-#define __ROLE_H__
+#ifndef __AUTOZ_GUI_ROLE_H__
+#define __AUTOZ_GUI_ROLE_H__
 
 #include <glib.h>
 #include <glib-object.h>
@@ -30,36 +30,36 @@
 G_BEGIN_DECLS
 
 
-#define TYPE_ROLE                 (role_get_type ())
-#define ROLE(obj)                 (G_TYPE_CHECK_INSTANCE_CAST ((obj), TYPE_ROLE, Role))
-#define ROLE_CLASS(klass)         (G_TYPE_CHECK_CLASS_CAST ((klass), TYPE_ROLE, RoleClass))
-#define IS_ROLE(obj)              (G_TYPE_CHECK_INSTANCE_TYPE ((obj), TYPE_ROLE))
-#define IS_ROLE_CLASS(klass)      (G_TYPE_CHECK_CLASS_TYPE ((klass), TYPE_ROLE))
-#define ROLE_GET_CLASS(obj)       (G_TYPE_INSTANCE_GET_CLASS ((obj), TYPE_ROLE, RoleClass))
+#define TYPE_AUTOZ_GUI_ROLE                 (autoz_gui_role_get_type ())
+#define AUTOZ_GUI_ROLE(obj)                 (G_TYPE_CHECK_INSTANCE_CAST ((obj), TYPE_AUTOZ_GUI_ROLE, AutozGuiRole))
+#define AUTOZ_GUI_ROLE_CLASS(klass)         (G_TYPE_CHECK_CLASS_CAST ((klass), TYPE_AUTOZ_GUI_ROLE, AutozGuiRoleClass))
+#define IS_AUTOZ_GUI_ROLE(obj)              (G_TYPE_CHECK_INSTANCE_TYPE ((obj), TYPE_AUTOZ_GUI_ROLE))
+#define IS_AUTOZ_GUI_ROLE_CLASS(klass)      (G_TYPE_CHECK_CLASS_TYPE ((klass), TYPE_AUTOZ_GUI_ROLE))
+#define AUTOZ_GUI_ROLE_GET_CLASS(obj)       (G_TYPE_INSTANCE_GET_CLASS ((obj), TYPE_AUTOZ_GUI_ROLE, AutozGuiRoleClass))
 
 
-typedef struct _Role Role;
-typedef struct _RoleClass RoleClass;
+typedef struct _AutozGuiRole AutozGuiRole;
+typedef struct _AutozGuiRoleClass AutozGuiRoleClass;
 
-struct _Role
+struct _AutozGuiRole
 	{
 		GObject parent;
 	};
 
-struct _RoleClass
+struct _AutozGuiRoleClass
 	{
 		GObjectClass parent_class;
 
 		guint updated_signal_id;
 	};
 
-GType role_get_type (void) G_GNUC_CONST;
+GType autoz_gui_role_get_type (void) G_GNUC_CONST;
 
-Role *role_new (AutozGuiCommons *commons, gint id);
+AutozGuiRole *autoz_gui_role_new (AutozGuiCommons *commons, gint id);
 
-GtkWidget *role_get_widget (Role *role);
+GtkWidget *autoz_gui_role_get_widget (AutozGuiRole *role);
 
 
 G_END_DECLS
 
-#endif /* __ROLE_H__ */
+#endif /* __AUTOZ_GUI_ROLE_H__ */

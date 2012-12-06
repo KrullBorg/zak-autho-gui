@@ -22,30 +22,30 @@
 
 #include "resource.h"
 
-static void resource_class_init (ResourceClass *klass);
-static void resource_init (Resource *resource);
+static void autoz_gui_resource_class_init (AutozGuiResourceClass *klass);
+static void autoz_gui_resource_init (AutozGuiResource *resource);
 
-static void resource_load (Resource *resource);
-static void resource_save (Resource *resource);
+static void autoz_gui_resource_load (AutozGuiResource *resource);
+static void autoz_gui_resource_save (AutozGuiResource *resource);
 
-static void resource_set_property (GObject *object,
+static void autoz_gui_resource_set_property (GObject *object,
                                      guint property_id,
                                      const GValue *value,
                                      GParamSpec *pspec);
-static void resource_get_property (GObject *object,
+static void autoz_gui_resource_get_property (GObject *object,
                                      guint property_id,
                                      GValue *value,
                                      GParamSpec *pspec);
 
-static void resource_on_btn_cancel_clicked (GtkButton *button,
+static void autoz_gui_resource_on_btn_cancel_clicked (GtkButton *button,
                                     gpointer user_data);
-static void resource_on_btn_save_clicked (GtkButton *button,
+static void autoz_gui_resource_on_btn_save_clicked (GtkButton *button,
                                   gpointer user_data);
 
-#define RESOURCE_GET_PRIVATE(obj) (G_TYPE_INSTANCE_GET_PRIVATE ((obj), TYPE_RESOURCE, ResourcePrivate))
+#define AUTOZ_GUI_RESOURCE_GET_PRIVATE(obj) (G_TYPE_INSTANCE_GET_PRIVATE ((obj), TYPE_AUTOZ_GUI_RESOURCE, AutozGuiResourcePrivate))
 
-typedef struct _ResourcePrivate ResourcePrivate;
-struct _ResourcePrivate
+typedef struct _AutozGuiResourcePrivate AutozGuiResourcePrivate;
+struct _AutozGuiResourcePrivate
 	{
 		AutozGuiCommons *commons;
 
@@ -54,20 +54,20 @@ struct _ResourcePrivate
 		gint id;
 	};
 
-G_DEFINE_TYPE (Resource, resource, G_TYPE_OBJECT)
+G_DEFINE_TYPE (AutozGuiResource, autoz_gui_resource, G_TYPE_OBJECT)
 
 static void
-resource_class_init (ResourceClass *klass)
+autoz_gui_resource_class_init (AutozGuiResourceClass *klass)
 {
 	GObjectClass *object_class = G_OBJECT_CLASS (klass);
 
-	g_type_class_add_private (object_class, sizeof (ResourcePrivate));
+	g_type_class_add_private (object_class, sizeof (AutozGuiResourcePrivate));
 
-	object_class->set_property = resource_set_property;
-	object_class->get_property = resource_get_property;
+	object_class->set_property = autoz_gui_resource_set_property;
+	object_class->get_property = autoz_gui_resource_get_property;
 
 	/**
-	 * Resource::updated:
+	 * AutozGuiResource::updated:
 	 * @resource:
 	 *
 	 */
@@ -83,26 +83,26 @@ resource_class_init (ResourceClass *klass)
 }
 
 static void
-resource_init (Resource *resource)
+autoz_gui_resource_init (AutozGuiResource *resource)
 {
-	ResourcePrivate *priv = RESOURCE_GET_PRIVATE (resource);
+	AutozGuiResourcePrivate *priv = AUTOZ_GUI_RESOURCE_GET_PRIVATE (resource);
 }
 
 /**
- * resource_new:
+ * autoz_gui_resource_new:
  * @commons:
  * @id:
  *
- * Returns: the newly created #Resource object.
+ * Returns: the newly created #AutozGuiResource object.
  */
-Resource
-*resource_new (AutozGuiCommons *commons, gint id)
+AutozGuiResource
+*autoz_gui_resource_new (AutozGuiCommons *commons, gint id)
 {
 	GError *error;
 
-	Resource *a = RESOURCE (g_object_new (resource_get_type (), NULL));
+	AutozGuiResource *a = AUTOZ_GUI_RESOURCE (g_object_new (autoz_gui_resource_get_type (), NULL));
 
-	ResourcePrivate *priv = RESOURCE_GET_PRIVATE (a);
+	AutozGuiResourcePrivate *priv = AUTOZ_GUI_RESOURCE_GET_PRIVATE (a);
 
 	priv->commons = commons;
 
@@ -119,9 +119,9 @@ Resource
 	priv->w = GTK_WIDGET (gtk_builder_get_object (priv->commons->gtkbuilder, "w_resource"));
 
 	g_signal_connect (gtk_builder_get_object (priv->commons->gtkbuilder, "button5"),
-	                  "clicked", G_CALLBACK (resource_on_btn_cancel_clicked), (gpointer *)a);
+	                  "clicked", G_CALLBACK (autoz_gui_resource_on_btn_cancel_clicked), (gpointer *)a);
 	g_signal_connect (gtk_builder_get_object (priv->commons->gtkbuilder, "button6"),
-	                  "clicked", G_CALLBACK (resource_on_btn_save_clicked), (gpointer *)a);
+	                  "clicked", G_CALLBACK (autoz_gui_resource_on_btn_save_clicked), (gpointer *)a);
 
 	priv->id = id;
 	if (priv->id == 0)
@@ -131,30 +131,30 @@ Resource
 	else
 		{
 			gtk_label_set_text (GTK_LABEL (gtk_builder_get_object (priv->commons->gtkbuilder, "label5")), g_strdup_printf ("%d", priv->id));
-			resource_load (a);
+			autoz_gui_resource_load (a);
 		}
 
 	return a;
 }
 
 /**
- * resource_get_widget:
+ * autoz_gui_resource_get_widget:
  * @resource:
  *
  */
 GtkWidget
-*resource_get_widget (Resource *resource)
+*autoz_gui_resource_get_widget (AutozGuiResource *resource)
 {
-	ResourcePrivate *priv = RESOURCE_GET_PRIVATE (resource);
+	AutozGuiResourcePrivate *priv = AUTOZ_GUI_RESOURCE_GET_PRIVATE (resource);
 
 	return priv->w;
 }
 
 /* PRIVATE */
 static void
-resource_load (Resource *resource)
+autoz_gui_resource_load (AutozGuiResource *resource)
 {
-	ResourcePrivate *priv = RESOURCE_GET_PRIVATE (resource);
+	AutozGuiResourcePrivate *priv = AUTOZ_GUI_RESOURCE_GET_PRIVATE (resource);
 
 	GError *error;
 	gchar *sql;
@@ -188,7 +188,7 @@ resource_load (Resource *resource)
 }
 
 static void
-resource_save (Resource *resource)
+autoz_gui_resource_save (AutozGuiResource *resource)
 {
 	const GdaDsnInfo *info;
 	GError *error;
@@ -197,9 +197,9 @@ resource_save (Resource *resource)
 	GdaDataModel *dm;
 	GtkWidget *dialog;
 
-	ResourceClass *klass = RESOURCE_GET_CLASS (resource);
+	AutozGuiResourceClass *klass = AUTOZ_GUI_RESOURCE_GET_CLASS (resource);
 
-	ResourcePrivate *priv = RESOURCE_GET_PRIVATE (resource);
+	AutozGuiResourcePrivate *priv = AUTOZ_GUI_RESOURCE_GET_PRIVATE (resource);
 
 	if (g_strcmp0 (gtk_entry_get_text (GTK_ENTRY (gtk_builder_get_object (priv->commons->gtkbuilder, "entry2"))), "") == 0)
 		{
@@ -292,10 +292,10 @@ resource_save (Resource *resource)
 }
 
 static void
-resource_set_property (GObject *object, guint property_id, const GValue *value, GParamSpec *pspec)
+autoz_gui_resource_set_property (GObject *object, guint property_id, const GValue *value, GParamSpec *pspec)
 {
-	Resource *resource = RESOURCE (object);
-	ResourcePrivate *priv = RESOURCE_GET_PRIVATE (resource);
+	AutozGuiResource *resource = AUTOZ_GUI_RESOURCE (object);
+	AutozGuiResourcePrivate *priv = AUTOZ_GUI_RESOURCE_GET_PRIVATE (resource);
 
 	switch (property_id)
 		{
@@ -306,10 +306,10 @@ resource_set_property (GObject *object, guint property_id, const GValue *value, 
 }
 
 static void
-resource_get_property (GObject *object, guint property_id, GValue *value, GParamSpec *pspec)
+autoz_gui_resource_get_property (GObject *object, guint property_id, GValue *value, GParamSpec *pspec)
 {
-	Resource *resource = RESOURCE (object);
-	ResourcePrivate *priv = RESOURCE_GET_PRIVATE (resource);
+	AutozGuiResource *resource = AUTOZ_GUI_RESOURCE (object);
+	AutozGuiResourcePrivate *priv = AUTOZ_GUI_RESOURCE_GET_PRIVATE (resource);
 
 	switch (property_id)
 		{
@@ -321,19 +321,19 @@ resource_get_property (GObject *object, guint property_id, GValue *value, GParam
 
 /* CALLBACK */
 static void
-resource_on_btn_cancel_clicked (GtkButton *button,
+autoz_gui_resource_on_btn_cancel_clicked (GtkButton *button,
                         gpointer user_data)
 {
-	Resource *resource = (Resource *)user_data;
+	AutozGuiResource *resource = (AutozGuiResource *)user_data;
 
-	ResourcePrivate *priv = RESOURCE_GET_PRIVATE (resource);
+	AutozGuiResourcePrivate *priv = AUTOZ_GUI_RESOURCE_GET_PRIVATE (resource);
 
 	gtk_widget_destroy (priv->w);
 }
 
 static void
-resource_on_btn_save_clicked (GtkButton *button,
+autoz_gui_resource_on_btn_save_clicked (GtkButton *button,
                       gpointer user_data)
 {
-	resource_save ((Resource *)user_data);
+	autoz_gui_resource_save ((AutozGuiResource *)user_data);
 }

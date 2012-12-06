@@ -17,8 +17,8 @@
  *
  */
 
-#ifndef __AUTHORIZATIONS_H__
-#define __AUTHORIZATIONS_H__
+#ifndef __AUTOZ_GUI_AUTHORIZATIONS_H__
+#define __AUTOZ_GUI_AUTHORIZATIONS_H__
 
 #include <glib.h>
 #include <glib-object.h>
@@ -30,34 +30,34 @@
 G_BEGIN_DECLS
 
 
-#define TYPE_AUTHORIZATIONS                 (authorizations_get_type ())
-#define AUTHORIZATIONS(obj)                 (G_TYPE_CHECK_INSTANCE_CAST ((obj), TYPE_AUTHORIZATIONS, Authorizations))
-#define AUTHORIZATIONS_CLASS(klass)         (G_TYPE_CHECK_CLASS_CAST ((klass), TYPE_AUTHORIZATIONS, AuthorizationsClass))
-#define IS_AUTHORIZATIONS(obj)              (G_TYPE_CHECK_INSTANCE_TYPE ((obj), TYPE_AUTHORIZATIONS))
-#define IS_AUTHORIZATIONS_CLASS(klass)      (G_TYPE_CHECK_CLASS_TYPE ((klass), TYPE_AUTHORIZATIONS))
-#define AUTHORIZATIONS_GET_CLASS(obj)       (G_TYPE_INSTANCE_GET_CLASS ((obj), TYPE_AUTHORIZATIONS, AuthorizationsClass))
+#define TYPE_AUTOZ_GUI_AUTHORIZATIONS                 (autoz_gui_authorizations_get_type ())
+#define AUTOZ_GUI_AUTHORIZATIONS(obj)                 (G_TYPE_CHECK_INSTANCE_CAST ((obj), TYPE_AUTOZ_GUI_AUTHORIZATIONS, AutozGuiAuthorizations))
+#define AUTOZ_GUI_AUTHORIZATIONS_CLASS(klass)         (G_TYPE_CHECK_CLASS_CAST ((klass), TYPE_AUTOZ_GUI_AUTHORIZATIONS, AutozGuiAuthorizationsClass))
+#define IS_AUTOZ_GUI_AUTHORIZATIONS(obj)              (G_TYPE_CHECK_INSTANCE_TYPE ((obj), TYPE_AUTOZ_GUI_AUTHORIZATIONS))
+#define IS_AUTOZ_GUI_AUTHORIZATIONS_CLASS(klass)      (G_TYPE_CHECK_CLASS_TYPE ((klass), TYPE_AUTOZ_GUI_AUTHORIZATIONS))
+#define AUTOZ_GUI_AUTHORIZATIONS_GET_CLASS(obj)       (G_TYPE_INSTANCE_GET_CLASS ((obj), TYPE_AUTOZ_GUI_AUTHORIZATIONS, AutozGuiAuthorizationsClass))
 
 
-typedef struct _Authorizations Authorizations;
-typedef struct _AuthorizationsClass AuthorizationsClass;
+typedef struct _AutozGuiAuthorizations AutozGuiAuthorizations;
+typedef struct _AutozGuiAuthorizationsClass AutozGuiAuthorizationsClass;
 
-struct _Authorizations
+struct _AutozGuiAuthorizations
 	{
 		GObject parent;
 	};
 
-struct _AuthorizationsClass
+struct _AutozGuiAuthorizationsClass
 	{
 		GObjectClass parent_class;
 	};
 
-GType authorizations_get_type (void) G_GNUC_CONST;
+GType autoz_gui_authorizations_get_type (void) G_GNUC_CONST;
 
-Authorizations *authorizations_new (AutozGuiCommons *commons, gboolean selection);
+AutozGuiAuthorizations *autoz_gui_authorizations_new (AutozGuiCommons *commons, gboolean selection);
 
-GtkWidget *authorizations_get_widget (Authorizations *authorizations);
+GtkWidget *autoz_gui_authorizations_get_widget (AutozGuiAuthorizations *authorizations);
 
 
 G_END_DECLS
 
-#endif /* __AUTHORIZATIONS_H__ */
+#endif /* __AUTOZ_GUI_AUTHORIZATIONS_H__ */

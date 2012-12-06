@@ -21,31 +21,31 @@
 
 #include "openauditds.h"
 
-static void open_audit_ds_class_init (OpenAuditDSClass *klass);
-static void open_audit_ds_init (OpenAuditDS *open_audit_ds);
+static void autoz_gui_open_audit_ds_class_init (AutozGuiOpenAuditDSClass *klass);
+static void autoz_gui_open_audit_ds_init (AutozGuiOpenAuditDS *open_audit_ds);
 
-static void open_audit_ds_set_property (GObject *object,
+static void autoz_gui_open_audit_ds_set_property (GObject *object,
                                      guint property_id,
                                      const GValue *value,
                                      GParamSpec *pspec);
-static void open_audit_ds_get_property (GObject *object,
+static void autoz_gui_open_audit_ds_get_property (GObject *object,
                                      guint property_id,
                                      GValue *value,
                                      GParamSpec *pspec);
 
-static void open_audit_ds_on_wlogin_changed (GdauiLogin *gdauilogin,
+static void autoz_gui_open_audit_ds_on_wlogin_changed (GdauiLogin *gdauilogin,
                                              gboolean arg1,
                                              gpointer user_data);
 
-static void open_audit_ds_on_btn_cancel_clicked (GtkButton *button,
+static void autoz_gui_open_audit_ds_on_btn_cancel_clicked (GtkButton *button,
                                     gpointer user_data);
-static void open_audit_ds_on_btn_open_clicked (GtkButton *button,
+static void autoz_gui_open_audit_ds_on_btn_open_clicked (GtkButton *button,
                                   gpointer user_data);
 
-#define OPEN_AUDIT_DS_GET_PRIVATE(obj) (G_TYPE_INSTANCE_GET_PRIVATE ((obj), TYPE_OPEN_AUDIT_DS, OpenAuditDSPrivate))
+#define AUTOZ_GUI_OPEN_AUDIT_DS_GET_PRIVATE(obj) (G_TYPE_INSTANCE_GET_PRIVATE ((obj), TYPE_AUTOZ_GUI_OPEN_AUDIT_DS, AutozGuiOpenAuditDSPrivate))
 
-typedef struct _OpenAuditDSPrivate OpenAuditDSPrivate;
-struct _OpenAuditDSPrivate
+typedef struct _AutozGuiOpenAuditDSPrivate AutozGuiOpenAuditDSPrivate;
+struct _AutozGuiOpenAuditDSPrivate
 	{
 		AutozGuiCommons *commons;
 
@@ -53,20 +53,20 @@ struct _OpenAuditDSPrivate
 		GtkWidget *wlogin;
 	};
 
-G_DEFINE_TYPE (OpenAuditDS, open_audit_ds, G_TYPE_OBJECT)
+G_DEFINE_TYPE (AutozGuiOpenAuditDS, autoz_gui_open_audit_ds, G_TYPE_OBJECT)
 
 static void
-open_audit_ds_class_init (OpenAuditDSClass *klass)
+autoz_gui_open_audit_ds_class_init (AutozGuiOpenAuditDSClass *klass)
 {
 	GObjectClass *object_class = G_OBJECT_CLASS (klass);
 
-	g_type_class_add_private (object_class, sizeof (OpenAuditDSPrivate));
+	g_type_class_add_private (object_class, sizeof (AutozGuiOpenAuditDSPrivate));
 
-	object_class->set_property = open_audit_ds_set_property;
-	object_class->get_property = open_audit_ds_get_property;
+	object_class->set_property = autoz_gui_open_audit_ds_set_property;
+	object_class->get_property = autoz_gui_open_audit_ds_get_property;
 
 	/**
-	 * OpenAuditDS::opened:
+	 * AutozGuiOpenAuditDS::opened:
 	 * @open_audit_ds:
 	 *
 	 */
@@ -82,28 +82,28 @@ open_audit_ds_class_init (OpenAuditDSClass *klass)
 }
 
 static void
-open_audit_ds_init (OpenAuditDS *open_audit_ds)
+autoz_gui_open_audit_ds_init (AutozGuiOpenAuditDS *open_audit_ds)
 {
-	OpenAuditDSPrivate *priv = OPEN_AUDIT_DS_GET_PRIVATE (open_audit_ds);
+	AutozGuiOpenAuditDSPrivate *priv = AUTOZ_GUI_OPEN_AUDIT_DS_GET_PRIVATE (open_audit_ds);
 }
 
 /**
- * open_audit_ds_new:
+ * autoz_gui_open_audit_ds_new:
  * @commons:
  * @id:
  *
- * Returns: the newly created #OpenAuditDS object.
+ * Returns: the newly created #AutozGuiOpenAuditDS object.
  */
-OpenAuditDS
-*open_audit_ds_new (AutozGuiCommons *commons)
+AutozGuiOpenAuditDS
+*autoz_gui_open_audit_ds_new (AutozGuiCommons *commons)
 {
 	GError *error;
 
 	GdauiLoginMode mode;
 
-	OpenAuditDS *a = OPEN_AUDIT_DS (g_object_new (open_audit_ds_get_type (), NULL));
+	AutozGuiOpenAuditDS *a = AUTOZ_GUI_OPEN_AUDIT_DS (g_object_new (autoz_gui_open_audit_ds_get_type (), NULL));
 
-	OpenAuditDSPrivate *priv = OPEN_AUDIT_DS_GET_PRIVATE (a);
+	AutozGuiOpenAuditDSPrivate *priv = AUTOZ_GUI_OPEN_AUDIT_DS_GET_PRIVATE (a);
 
 	priv->commons = commons;
 
@@ -120,9 +120,9 @@ OpenAuditDS
 	priv->w = GTK_WIDGET (gtk_builder_get_object (priv->commons->gtkbuilder, "w_open_autoz_datasource"));
 
 	g_signal_connect (gtk_builder_get_object (priv->commons->gtkbuilder, "button1"),
-	                  "clicked", G_CALLBACK (open_audit_ds_on_btn_cancel_clicked), (gpointer *)a);
+	                  "clicked", G_CALLBACK (autoz_gui_open_audit_ds_on_btn_cancel_clicked), (gpointer *)a);
 	g_signal_connect (gtk_builder_get_object (priv->commons->gtkbuilder, "button2"),
-	                  "clicked", G_CALLBACK (open_audit_ds_on_btn_open_clicked), (gpointer *)a);
+	                  "clicked", G_CALLBACK (autoz_gui_open_audit_ds_on_btn_open_clicked), (gpointer *)a);
 
 	/* creating login widget */
 	priv->wlogin = gdaui_login_new (NULL);
@@ -132,7 +132,7 @@ OpenAuditDS
 	gdaui_login_set_mode (GDAUI_LOGIN (priv->wlogin), mode);
 
 	g_signal_connect (G_OBJECT (priv->wlogin), "changed",
-	                  G_CALLBACK (open_audit_ds_on_wlogin_changed), (gpointer *)a);
+	                  G_CALLBACK (autoz_gui_open_audit_ds_on_wlogin_changed), (gpointer *)a);
 
 	gtk_container_add (GTK_CONTAINER (gtk_builder_get_object (priv->commons->gtkbuilder, "frame1")),
 	                    priv->wlogin);
@@ -143,24 +143,24 @@ OpenAuditDS
 }
 
 /**
- * open_audit_ds_get_widget:
+ * autoz_gui_open_audit_ds_get_widget:
  * @open_audit_ds:
  *
  */
 GtkWidget
-*open_audit_ds_get_widget (OpenAuditDS *open_audit_ds)
+*autoz_gui_open_audit_ds_get_widget (AutozGuiOpenAuditDS *open_audit_ds)
 {
-	OpenAuditDSPrivate *priv = OPEN_AUDIT_DS_GET_PRIVATE (open_audit_ds);
+	AutozGuiOpenAuditDSPrivate *priv = AUTOZ_GUI_OPEN_AUDIT_DS_GET_PRIVATE (open_audit_ds);
 
 	return priv->w;
 }
 
 /* PRIVATE */
 static void
-open_audit_ds_set_property (GObject *object, guint property_id, const GValue *value, GParamSpec *pspec)
+autoz_gui_open_audit_ds_set_property (GObject *object, guint property_id, const GValue *value, GParamSpec *pspec)
 {
-	OpenAuditDS *open_audit_ds = OPEN_AUDIT_DS (object);
-	OpenAuditDSPrivate *priv = OPEN_AUDIT_DS_GET_PRIVATE (open_audit_ds);
+	AutozGuiOpenAuditDS *open_audit_ds = AUTOZ_GUI_OPEN_AUDIT_DS (object);
+	AutozGuiOpenAuditDSPrivate *priv = AUTOZ_GUI_OPEN_AUDIT_DS_GET_PRIVATE (open_audit_ds);
 
 	switch (property_id)
 		{
@@ -171,10 +171,10 @@ open_audit_ds_set_property (GObject *object, guint property_id, const GValue *va
 }
 
 static void
-open_audit_ds_get_property (GObject *object, guint property_id, GValue *value, GParamSpec *pspec)
+autoz_gui_open_audit_ds_get_property (GObject *object, guint property_id, GValue *value, GParamSpec *pspec)
 {
-	OpenAuditDS *open_audit_ds = OPEN_AUDIT_DS (object);
-	OpenAuditDSPrivate *priv = OPEN_AUDIT_DS_GET_PRIVATE (open_audit_ds);
+	AutozGuiOpenAuditDS *open_audit_ds = AUTOZ_GUI_OPEN_AUDIT_DS (object);
+	AutozGuiOpenAuditDSPrivate *priv = AUTOZ_GUI_OPEN_AUDIT_DS_GET_PRIVATE (open_audit_ds);
 
 	switch (property_id)
 		{
@@ -186,13 +186,13 @@ open_audit_ds_get_property (GObject *object, guint property_id, GValue *value, G
 
 /* CALLBACK */
 static void
-open_audit_ds_on_wlogin_changed (GdauiLogin *gdauilogin,
+autoz_gui_open_audit_ds_on_wlogin_changed (GdauiLogin *gdauilogin,
                                  gboolean arg1,
                                  gpointer user_data)
 {
-	OpenAuditDS *open_audit_ds = (OpenAuditDS *)user_data;
+	AutozGuiOpenAuditDS *open_audit_ds = (AutozGuiOpenAuditDS *)user_data;
 
-	OpenAuditDSPrivate *priv = OPEN_AUDIT_DS_GET_PRIVATE (open_audit_ds);
+	AutozGuiOpenAuditDSPrivate *priv = AUTOZ_GUI_OPEN_AUDIT_DS_GET_PRIVATE (open_audit_ds);
 
 	gboolean is_valid;
 
@@ -202,22 +202,22 @@ open_audit_ds_on_wlogin_changed (GdauiLogin *gdauilogin,
 }
 
 static void
-open_audit_ds_on_btn_cancel_clicked (GtkButton *button,
+autoz_gui_open_audit_ds_on_btn_cancel_clicked (GtkButton *button,
                                      gpointer user_data)
 {
-	OpenAuditDS *open_audit_ds = (OpenAuditDS *)user_data;
-	OpenAuditDSPrivate *priv = OPEN_AUDIT_DS_GET_PRIVATE (open_audit_ds);
+	AutozGuiOpenAuditDS *open_audit_ds = (AutozGuiOpenAuditDS *)user_data;
+	AutozGuiOpenAuditDSPrivate *priv = AUTOZ_GUI_OPEN_AUDIT_DS_GET_PRIVATE (open_audit_ds);
 
 	gtk_widget_destroy (priv->w);
 }
 
 static void
-open_audit_ds_on_btn_open_clicked (GtkButton *button,
+autoz_gui_open_audit_ds_on_btn_open_clicked (GtkButton *button,
                                    gpointer user_data)
 {
-	OpenAuditDS *open_audit_ds = (OpenAuditDS *)user_data;
-	OpenAuditDSPrivate *priv = OPEN_AUDIT_DS_GET_PRIVATE (open_audit_ds);
-	OpenAuditDSClass *klass = OPEN_AUDIT_DS_GET_CLASS (open_audit_ds);
+	AutozGuiOpenAuditDS *open_audit_ds = (AutozGuiOpenAuditDS *)user_data;
+	AutozGuiOpenAuditDSPrivate *priv = AUTOZ_GUI_OPEN_AUDIT_DS_GET_PRIVATE (open_audit_ds);
+	AutozGuiOpenAuditDSClass *klass = AUTOZ_GUI_OPEN_AUDIT_DS_GET_CLASS (open_audit_ds);
 
 	gchar *cncstring;
 

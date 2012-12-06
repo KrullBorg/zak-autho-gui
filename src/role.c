@@ -22,30 +22,30 @@
 
 #include "role.h"
 
-static void role_class_init (RoleClass *klass);
-static void role_init (Role *role);
+static void autoz_gui_role_class_init (AutozGuiRoleClass *klass);
+static void autoz_gui_role_init (AutozGuiRole *role);
 
-static void role_load (Role *role);
-static void role_save (Role *role);
+static void autoz_gui_role_load (AutozGuiRole *role);
+static void autoz_gui_role_save (AutozGuiRole *role);
 
-static void role_set_property (GObject *object,
+static void autoz_gui_role_set_property (GObject *object,
                                      guint property_id,
                                      const GValue *value,
                                      GParamSpec *pspec);
-static void role_get_property (GObject *object,
+static void autoz_gui_role_get_property (GObject *object,
                                      guint property_id,
                                      GValue *value,
                                      GParamSpec *pspec);
 
-static void role_on_btn_cancel_clicked (GtkButton *button,
+static void autoz_gui_role_on_btn_cancel_clicked (GtkButton *button,
                                     gpointer user_data);
-static void role_on_btn_save_clicked (GtkButton *button,
+static void autoz_gui_role_on_btn_save_clicked (GtkButton *button,
                                   gpointer user_data);
 
-#define ROLE_GET_PRIVATE(obj) (G_TYPE_INSTANCE_GET_PRIVATE ((obj), TYPE_ROLE, RolePrivate))
+#define AUTOZ_GUI_ROLE_GET_PRIVATE(obj) (G_TYPE_INSTANCE_GET_PRIVATE ((obj), TYPE_AUTOZ_GUI_ROLE, AutozGuiRolePrivate))
 
-typedef struct _RolePrivate RolePrivate;
-struct _RolePrivate
+typedef struct _AutozGuiRolePrivate AutozGuiRolePrivate;
+struct _AutozGuiRolePrivate
 	{
 		AutozGuiCommons *commons;
 
@@ -54,20 +54,20 @@ struct _RolePrivate
 		gint id;
 	};
 
-G_DEFINE_TYPE (Role, role, G_TYPE_OBJECT)
+G_DEFINE_TYPE (AutozGuiRole, autoz_gui_role, G_TYPE_OBJECT)
 
 static void
-role_class_init (RoleClass *klass)
+autoz_gui_role_class_init (AutozGuiRoleClass *klass)
 {
 	GObjectClass *object_class = G_OBJECT_CLASS (klass);
 
-	g_type_class_add_private (object_class, sizeof (RolePrivate));
+	g_type_class_add_private (object_class, sizeof (AutozGuiRolePrivate));
 
-	object_class->set_property = role_set_property;
-	object_class->get_property = role_get_property;
+	object_class->set_property = autoz_gui_role_set_property;
+	object_class->get_property = autoz_gui_role_get_property;
 
 	/**
-	 * Role::updated:
+	 * AutozGuiRole::updated:
 	 * @role:
 	 *
 	 */
@@ -83,26 +83,26 @@ role_class_init (RoleClass *klass)
 }
 
 static void
-role_init (Role *role)
+autoz_gui_role_init (AutozGuiRole *role)
 {
-	RolePrivate *priv = ROLE_GET_PRIVATE (role);
+	AutozGuiRolePrivate *priv = AUTOZ_GUI_ROLE_GET_PRIVATE (role);
 }
 
 /**
- * role_new:
+ * autoz_gui_role_new:
  * @commons:
  * @id:
  *
- * Returns: the newly created #Role object.
+ * Returns: the newly created #AutozGuiRole object.
  */
-Role
-*role_new (AutozGuiCommons *commons, gint id)
+AutozGuiRole
+*autoz_gui_role_new (AutozGuiCommons *commons, gint id)
 {
 	GError *error;
 
-	Role *a = ROLE (g_object_new (role_get_type (), NULL));
+	AutozGuiRole *a = AUTOZ_GUI_ROLE (g_object_new (autoz_gui_role_get_type (), NULL));
 
-	RolePrivate *priv = ROLE_GET_PRIVATE (a);
+	AutozGuiRolePrivate *priv = AUTOZ_GUI_ROLE_GET_PRIVATE (a);
 
 	priv->commons = commons;
 
@@ -119,9 +119,9 @@ Role
 	priv->w = GTK_WIDGET (gtk_builder_get_object (priv->commons->gtkbuilder, "w_role"));
 
 	g_signal_connect (gtk_builder_get_object (priv->commons->gtkbuilder, "button3"),
-	                  "clicked", G_CALLBACK (role_on_btn_cancel_clicked), (gpointer *)a);
+	                  "clicked", G_CALLBACK (autoz_gui_role_on_btn_cancel_clicked), (gpointer *)a);
 	g_signal_connect (gtk_builder_get_object (priv->commons->gtkbuilder, "button4"),
-	                  "clicked", G_CALLBACK (role_on_btn_save_clicked), (gpointer *)a);
+	                  "clicked", G_CALLBACK (autoz_gui_role_on_btn_save_clicked), (gpointer *)a);
 
 	priv->id = id;
 	if (priv->id == 0)
@@ -131,30 +131,30 @@ Role
 	else
 		{
 			gtk_label_set_text (GTK_LABEL (gtk_builder_get_object (priv->commons->gtkbuilder, "label2")), g_strdup_printf ("%d", priv->id));
-			role_load (a);
+			autoz_gui_role_load (a);
 		}
 
 	return a;
 }
 
 /**
- * role_get_widget:
+ * autoz_gui_role_get_widget:
  * @role:
  *
  */
 GtkWidget
-*role_get_widget (Role *role)
+*autoz_gui_role_get_widget (AutozGuiRole *role)
 {
-	RolePrivate *priv = ROLE_GET_PRIVATE (role);
+	AutozGuiRolePrivate *priv = AUTOZ_GUI_ROLE_GET_PRIVATE (role);
 
 	return priv->w;
 }
 
 /* PRIVATE */
 static void
-role_load (Role *role)
+autoz_gui_role_load (AutozGuiRole *role)
 {
-	RolePrivate *priv = ROLE_GET_PRIVATE (role);
+	AutozGuiRolePrivate *priv = AUTOZ_GUI_ROLE_GET_PRIVATE (role);
 
 	GError *error;
 	gchar *sql;
@@ -189,7 +189,7 @@ role_load (Role *role)
 }
 
 static void
-role_save (Role *role)
+autoz_gui_role_save (AutozGuiRole *role)
 {
 	const GdaDsnInfo *info;
 	GError *error;
@@ -198,9 +198,9 @@ role_save (Role *role)
 	GdaDataModel *dm;
 	GtkWidget *dialog;
 
-	RoleClass *klass = ROLE_GET_CLASS (role);
+	AutozGuiRoleClass *klass = AUTOZ_GUI_ROLE_GET_CLASS (role);
 
-	RolePrivate *priv = ROLE_GET_PRIVATE (role);
+	AutozGuiRolePrivate *priv = AUTOZ_GUI_ROLE_GET_PRIVATE (role);
 
 	if (g_strcmp0 (gtk_entry_get_text (GTK_ENTRY (gtk_builder_get_object (priv->commons->gtkbuilder, "entry1"))), "") == 0)
 		{
@@ -293,10 +293,10 @@ role_save (Role *role)
 }
 
 static void
-role_set_property (GObject *object, guint property_id, const GValue *value, GParamSpec *pspec)
+autoz_gui_role_set_property (GObject *object, guint property_id, const GValue *value, GParamSpec *pspec)
 {
-	Role *role = ROLE (object);
-	RolePrivate *priv = ROLE_GET_PRIVATE (role);
+	AutozGuiRole *role = AUTOZ_GUI_ROLE (object);
+	AutozGuiRolePrivate *priv = AUTOZ_GUI_ROLE_GET_PRIVATE (role);
 
 	switch (property_id)
 		{
@@ -307,10 +307,10 @@ role_set_property (GObject *object, guint property_id, const GValue *value, GPar
 }
 
 static void
-role_get_property (GObject *object, guint property_id, GValue *value, GParamSpec *pspec)
+autoz_gui_role_get_property (GObject *object, guint property_id, GValue *value, GParamSpec *pspec)
 {
-	Role *role = ROLE (object);
-	RolePrivate *priv = ROLE_GET_PRIVATE (role);
+	AutozGuiRole *role = AUTOZ_GUI_ROLE (object);
+	AutozGuiRolePrivate *priv = AUTOZ_GUI_ROLE_GET_PRIVATE (role);
 
 	switch (property_id)
 		{
@@ -322,19 +322,19 @@ role_get_property (GObject *object, guint property_id, GValue *value, GParamSpec
 
 /* CALLBACK */
 static void
-role_on_btn_cancel_clicked (GtkButton *button,
+autoz_gui_role_on_btn_cancel_clicked (GtkButton *button,
                         gpointer user_data)
 {
-	Role *role = (Role *)user_data;
+	AutozGuiRole *role = (AutozGuiRole *)user_data;
 
-	RolePrivate *priv = ROLE_GET_PRIVATE (role);
+	AutozGuiRolePrivate *priv = AUTOZ_GUI_ROLE_GET_PRIVATE (role);
 
 	gtk_widget_destroy (priv->w);
 }
 
 static void
-role_on_btn_save_clicked (GtkButton *button,
+autoz_gui_role_on_btn_save_clicked (GtkButton *button,
                       gpointer user_data)
 {
-	role_save ((Role *)user_data);
+	autoz_gui_role_save ((AutozGuiRole *)user_data);
 }

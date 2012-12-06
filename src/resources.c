@@ -24,35 +24,36 @@
 #include "resources.h"
 #include "resource.h"
 
-static void resources_class_init (ResourcesClass *klass);
-static void resources_init (Resources *resources);
+static void autoz_gui_resources_class_init (AutozGuiResourcesClass *klass);
+static void autoz_gui_resources_init (AutozGuiResources *resources);
 
-static void resources_load (Resources *resources);
-static void resources_edit (Resources *resources);
+static void autoz_gui_resources_load (AutozGuiResources *resources);
+static void autoz_gui_resources_edit (AutozGuiResources *resources);
 
-static void resources_on_resource_updated (gpointer instance, gpointer user_data);
+static void autoz_gui_resources_selected (AutozGuiResources *resources);
+static void autoz_gui_resources_on_resource_updated (gpointer instance, gpointer user_data);
 
-static void resources_set_property (GObject *object,
+static void autoz_gui_resources_set_property (GObject *object,
                                      guint property_id,
                                      const GValue *value,
                                      GParamSpec *pspec);
-static void resources_get_property (GObject *object,
+static void autoz_gui_resources_get_property (GObject *object,
                                      guint property_id,
                                      GValue *value,
                                      GParamSpec *pspec);
 
-static void resources_on_btn_new_clicked (GtkButton *button,
+static void autoz_gui_resources_on_btn_new_clicked (GtkButton *button,
                       gpointer user_data);
-static void resources_on_btn_edit_clicked (GtkButton *button,
+static void autoz_gui_resources_on_btn_edit_clicked (GtkButton *button,
                       gpointer user_data);
-static void resources_on_btn_delete_clicked (GtkButton *button,
+static void autoz_gui_resources_on_btn_delete_clicked (GtkButton *button,
                         gpointer user_data);
-static void resources_on_trv_resources_row_activated (GtkTreeView *tree_view,
+static void autoz_gui_resources_on_trv_autoz_gui_resources_row_activated (GtkTreeView *tree_view,
                                              GtkTreePath *tree_path,
                                              GtkTreeViewColumn *column,
                                              gpointer user_data);
 
-#define RESOURCES_GET_PRIVATE(obj) (G_TYPE_INSTANCE_GET_PRIVATE ((obj), TYPE_RESOURCES, ResourcesPrivate))
+#define AUTOZ_GUI_RESOURCES_GET_PRIVATE(obj) (G_TYPE_INSTANCE_GET_PRIVATE ((obj), TYPE_AUTOZ_GUI_RESOURCES, AutozGuiResourcesPrivate))
 
 enum
 {
@@ -60,53 +61,71 @@ enum
 	COL_NAME
 };
 
-typedef struct _ResourcesPrivate ResourcesPrivate;
-struct _ResourcesPrivate
+typedef struct _AutozGuiResourcesPrivate AutozGuiResourcesPrivate;
+struct _AutozGuiResourcesPrivate
 	{
 		AutozGuiCommons *commons;
 
 		GtkWidget *widget;
 
-		GtkTreeSelection *selection;
+		GtkTreeSelection *sel_selection;
 		GtkListStore *lstore_resources;
+
+		gboolean selection;
 	};
 
-G_DEFINE_TYPE (Resources, resources, G_TYPE_OBJECT)
+G_DEFINE_TYPE (AutozGuiResources, autoz_gui_resources, G_TYPE_OBJECT)
 
 static void
-resources_class_init (ResourcesClass *klass)
+autoz_gui_resources_class_init (AutozGuiResourcesClass *klass)
 {
 	GObjectClass *object_class = G_OBJECT_CLASS (klass);
 
-	g_type_class_add_private (object_class, sizeof (ResourcesPrivate));
+	g_type_class_add_private (object_class, sizeof (AutozGuiResourcesPrivate));
 
-	object_class->set_property = resources_set_property;
-	object_class->get_property = resources_get_property;
+	object_class->set_property = autoz_gui_resources_set_property;
+	object_class->get_property = autoz_gui_resources_get_property;
+
+	/**
+	 * Resources::selected:
+	 * @resources:
+	 *
+	 */
+	klass->selected_signal_id = g_signal_new ("selected",
+	                                               G_TYPE_FROM_CLASS (object_class),
+	                                               G_SIGNAL_RUN_LAST,
+	                                               0,
+	                                               NULL,
+	                                               NULL,
+	                                               g_cclosure_marshal_VOID__UINT,
+	                                               G_TYPE_NONE,
+	                                               1, G_TYPE_UINT);
 }
 
 static void
-resources_init (Resources *resources)
+autoz_gui_resources_init (AutozGuiResources *resources)
 {
-	ResourcesPrivate *priv = RESOURCES_GET_PRIVATE (resources);
+	AutozGuiResourcesPrivate *priv = AUTOZ_GUI_RESOURCES_GET_PRIVATE (resources);
 }
 
 /**
- * resources_new:
+ * autoz_gui_resources_new:
  * @commons:
  * @selection:
  *
- * Returns: the newly created #Resources object.
+ * Returns: the newly created #AutozGuiResources object.
  */
-Resources
-*resources_new (AutozGuiCommons *commons, gboolean selection)
+AutozGuiResources
+*autoz_gui_resources_new (AutozGuiCommons *commons, gboolean selection)
 {
 	GError *error;
 
-	Resources *a = RESOURCES (g_object_new (resources_get_type (), NULL));
+	AutozGuiResources *a = AUTOZ_GUI_RESOURCES (g_object_new (autoz_gui_resources_get_type (), NULL));
 
-	ResourcesPrivate *priv = RESOURCES_GET_PRIVATE (a);
+	AutozGuiResourcesPrivate *priv = AUTOZ_GUI_RESOURCES_GET_PRIVATE (a);
 
 	priv->commons = commons;
+	priv->selection = selection;
 
 	error = NULL;
 	gtk_builder_add_objects_from_file (priv->commons->gtkbuilder, priv->commons->guifile,
@@ -122,17 +141,17 @@ Resources
 		}
 
 	priv->widget = GTK_WIDGET (gtk_builder_get_object (priv->commons->gtkbuilder, (selection ? "w_resources" : "vbox7")));
-	priv->selection = gtk_tree_view_get_selection (GTK_TREE_VIEW (gtk_builder_get_object (priv->commons->gtkbuilder, "treeview1")));
+	priv->sel_selection = gtk_tree_view_get_selection (GTK_TREE_VIEW (gtk_builder_get_object (priv->commons->gtkbuilder, "treeview1")));
 	priv->lstore_resources = GTK_LIST_STORE (gtk_builder_get_object (priv->commons->gtkbuilder, "lstore_resources"));
 
 	g_signal_connect (gtk_builder_get_object (priv->commons->gtkbuilder, "button11"),
-	                  "clicked", G_CALLBACK (resources_on_btn_new_clicked), (gpointer)a);
+	                  "clicked", G_CALLBACK (autoz_gui_resources_on_btn_new_clicked), (gpointer)a);
 	g_signal_connect (gtk_builder_get_object (priv->commons->gtkbuilder, "button12"),
-	                  "clicked", G_CALLBACK (resources_on_btn_edit_clicked), (gpointer)a);
+	                  "clicked", G_CALLBACK (autoz_gui_resources_on_btn_edit_clicked), (gpointer)a);
 	g_signal_connect (gtk_builder_get_object (priv->commons->gtkbuilder, "button14"),
-	                  "clicked", G_CALLBACK (resources_on_btn_delete_clicked), (gpointer)a);
+	                  "clicked", G_CALLBACK (autoz_gui_resources_on_btn_delete_clicked), (gpointer)a);
 	g_signal_connect (gtk_builder_get_object (priv->commons->gtkbuilder, "treeview1"),
-	                  "row-activated", G_CALLBACK (resources_on_trv_resources_row_activated), (gpointer)a);
+	                  "row-activated", G_CALLBACK (autoz_gui_resources_on_trv_autoz_gui_resources_row_activated), (gpointer)a);
 
 	if (!selection)
 		{
@@ -140,31 +159,31 @@ Resources
 			gtk_widget_hide (GTK_WIDGET (gtk_builder_get_object (priv->commons->gtkbuilder, "button16")));
 		}
 
-	resources_load (a);
+	autoz_gui_resources_load (a);
 
 	return a;
 }
 
 /**
- * resources_get_widget:
+ * autoz_gui_resources_get_widget:
  * @resources:
  *
  */
 GtkWidget
-*resources_get_widget (Resources *resources)
+*autoz_gui_resources_get_widget (AutozGuiResources *resources)
 {
-	ResourcesPrivate *priv;
+	AutozGuiResourcesPrivate *priv;
 
-	g_return_val_if_fail (IS_RESOURCES (resources), NULL);
+	g_return_val_if_fail (IS_AUTOZ_GUI_RESOURCES (resources), NULL);
 
-	priv = RESOURCES_GET_PRIVATE (resources);
+	priv = AUTOZ_GUI_RESOURCES_GET_PRIVATE (resources);
 
 	return priv->widget;
 }
 
 /* PRIVATE */
 static void
-resources_load (Resources *resources)
+autoz_gui_resources_load (AutozGuiResources *resources)
 {
 	GtkTreeIter iter;
 
@@ -177,7 +196,7 @@ resources_load (Resources *resources)
 	gint rows;
 	gint row;
 
-	ResourcesPrivate *priv = RESOURCES_GET_PRIVATE (resources);
+	AutozGuiResourcesPrivate *priv = AUTOZ_GUI_RESOURCES_GET_PRIVATE (resources);
 
 	gtk_list_store_clear (priv->lstore_resources);
 
@@ -210,14 +229,14 @@ resources_load (Resources *resources)
 }
 
 static void
-resources_edit (Resources *resources)
+autoz_gui_resources_edit (AutozGuiResources *resources)
 {
 	GtkTreeIter iter;
 	guint id;
 
-	ResourcesPrivate *priv = RESOURCES_GET_PRIVATE (resources);
+	AutozGuiResourcesPrivate *priv = AUTOZ_GUI_RESOURCES_GET_PRIVATE (resources);
 
-	if (gtk_tree_selection_get_selected (priv->selection, NULL, &iter))
+	if (gtk_tree_selection_get_selected (priv->sel_selection, NULL, &iter))
 		{
 			GtkWidget *w;
 
@@ -225,18 +244,18 @@ resources_edit (Resources *resources)
 			                    COL_ID, &id,
 			                    -1);
 
-			Resource *c = resource_new (priv->commons, id);
+			AutozGuiResource *c = autoz_gui_resource_new (priv->commons, id);
 
 			g_signal_connect (G_OBJECT (c), "updated",
-			                  G_CALLBACK (resources_on_resource_updated), (gpointer)resources);
+			                  G_CALLBACK (autoz_gui_resources_on_resource_updated), (gpointer)resources);
 
-			w = resource_get_widget (c);
-			gtk_window_set_transient_for (GTK_WINDOW (w), GTK_WINDOW (gtk_builder_get_object (priv->commons->gtkbuilder, "w_main")));
+			w = autoz_gui_resource_get_widget (c);
+			gtk_window_set_transient_for (GTK_WINDOW (w), priv->selection ? GTK_WINDOW (priv->widget) :GTK_WINDOW (gtk_builder_get_object (priv->commons->gtkbuilder, "w_main")));
 			gtk_widget_show_all (w);
 		}
 	else
 		{
-			GtkWidget *dialog = gtk_message_dialog_new (GTK_WINDOW (gtk_builder_get_object (priv->commons->gtkbuilder, "w_main")),
+			GtkWidget *dialog = gtk_message_dialog_new (priv->selection ? GTK_WINDOW (priv->widget) :GTK_WINDOW (gtk_builder_get_object (priv->commons->gtkbuilder, "w_main")),
 			                                            GTK_DIALOG_DESTROY_WITH_PARENT,
 			                                            GTK_MESSAGE_WARNING,
 			                                            GTK_BUTTONS_OK,
@@ -247,16 +266,48 @@ resources_edit (Resources *resources)
 }
 
 static void
-resources_on_resource_updated (gpointer instance, gpointer user_data)
+autoz_gui_resources_on_resource_updated (gpointer instance, gpointer user_data)
 {
-	resources_load ((Resources *)user_data);
+	autoz_gui_resources_load ((AutozGuiResources *)user_data);
 }
 
 static void
-resources_set_property (GObject *object, guint property_id, const GValue *value, GParamSpec *pspec)
+autoz_gui_resources_selected (AutozGuiResources *resources)
 {
-	Resources *resources = RESOURCES (object);
-	ResourcesPrivate *priv = RESOURCES_GET_PRIVATE (resources);
+	GtkTreeIter iter;
+	guint id;
+
+	AutozGuiResourcesClass *klass = AUTOZ_GUI_RESOURCES_GET_CLASS (resources);
+	AutozGuiResourcesPrivate *priv = AUTOZ_GUI_RESOURCES_GET_PRIVATE (resources);
+
+	if (gtk_tree_selection_get_selected (priv->sel_selection, NULL, &iter))
+		{
+			gtk_tree_model_get (GTK_TREE_MODEL (priv->lstore_resources), &iter,
+			                    COL_ID, &id,
+			                    -1);
+
+			g_signal_emit (G_OBJECT (resources), klass->selected_signal_id, 0, id);
+
+			gtk_widget_destroy (priv->widget);
+			g_object_unref (G_OBJECT (resources));
+		}
+	else
+		{
+			GtkWidget *dialog = gtk_message_dialog_new (priv->selection ? GTK_WINDOW (priv->widget) : GTK_WINDOW (gtk_builder_get_object (priv->commons->gtkbuilder, "w_main")),
+			                                            GTK_DIALOG_DESTROY_WITH_PARENT,
+			                                            GTK_MESSAGE_WARNING,
+			                                            GTK_BUTTONS_OK,
+			                                            "Select a resource.");
+			gtk_dialog_run (GTK_DIALOG (dialog));
+			gtk_widget_destroy (dialog);
+		}
+}
+
+static void
+autoz_gui_resources_set_property (GObject *object, guint property_id, const GValue *value, GParamSpec *pspec)
+{
+	AutozGuiResources *resources = AUTOZ_GUI_RESOURCES (object);
+	AutozGuiResourcesPrivate *priv = AUTOZ_GUI_RESOURCES_GET_PRIVATE (resources);
 
 	switch (property_id)
 		{
@@ -267,10 +318,10 @@ resources_set_property (GObject *object, guint property_id, const GValue *value,
 }
 
 static void
-resources_get_property (GObject *object, guint property_id, GValue *value, GParamSpec *pspec)
+autoz_gui_resources_get_property (GObject *object, guint property_id, GValue *value, GParamSpec *pspec)
 {
-	Resources *resources = RESOURCES (object);
-	ResourcesPrivate *priv = RESOURCES_GET_PRIVATE (resources);
+	AutozGuiResources *resources = AUTOZ_GUI_RESOURCES (object);
+	AutozGuiResourcesPrivate *priv = AUTOZ_GUI_RESOURCES_GET_PRIVATE (resources);
 
 	switch (property_id)
 		{
@@ -282,33 +333,33 @@ resources_get_property (GObject *object, guint property_id, GValue *value, GPara
 
 /* CALLBACK */
 static void
-resources_on_btn_new_clicked (GtkButton *button,
+autoz_gui_resources_on_btn_new_clicked (GtkButton *button,
                       gpointer user_data)
 {
 	GtkWidget *w;
 
-	Resources *resources = (Resources *)user_data;
-	ResourcesPrivate *priv = RESOURCES_GET_PRIVATE (resources);
+	AutozGuiResources *resources = (AutozGuiResources *)user_data;
+	AutozGuiResourcesPrivate *priv = AUTOZ_GUI_RESOURCES_GET_PRIVATE (resources);
 
-	Resource *c = resource_new (priv->commons, 0);
+	AutozGuiResource *c = autoz_gui_resource_new (priv->commons, 0);
 
 	g_signal_connect (G_OBJECT (c), "updated",
-	                  G_CALLBACK (resources_on_resource_updated), (gpointer)resources);
+	                  G_CALLBACK (autoz_gui_resources_on_resource_updated), (gpointer)resources);
 
-	w = resource_get_widget (c);
-	gtk_window_set_transient_for (GTK_WINDOW (w), GTK_WINDOW (gtk_builder_get_object (priv->commons->gtkbuilder, "w_main")));
+	w = autoz_gui_resource_get_widget (c);
+	gtk_window_set_transient_for (GTK_WINDOW (w), priv->selection ? GTK_WINDOW (priv->widget) :GTK_WINDOW (gtk_builder_get_object (priv->commons->gtkbuilder, "w_main")));
 	gtk_widget_show_all (w);
 }
 
 static void
-resources_on_btn_edit_clicked (GtkButton *button,
+autoz_gui_resources_on_btn_edit_clicked (GtkButton *button,
                       gpointer user_data)
 {
-	resources_edit ((Resources *)user_data);
+	autoz_gui_resources_edit ((AutozGuiResources *)user_data);
 }
 
 static void
-resources_on_btn_delete_clicked (GtkButton *button,
+autoz_gui_resources_on_btn_delete_clicked (GtkButton *button,
                         gpointer user_data)
 {
 	GtkWidget *dialog;
@@ -317,12 +368,12 @@ resources_on_btn_delete_clicked (GtkButton *button,
 	GtkTreeIter iter;
 	guint id;
 
-	Resources *resources = (Resources *)user_data;
-	ResourcesPrivate *priv = RESOURCES_GET_PRIVATE (resources);
+	AutozGuiResources *resources = (AutozGuiResources *)user_data;
+	AutozGuiResourcesPrivate *priv = AUTOZ_GUI_RESOURCES_GET_PRIVATE (resources);
 
-	if (gtk_tree_selection_get_selected (priv->selection, NULL, &iter))
+	if (gtk_tree_selection_get_selected (priv->sel_selection, NULL, &iter))
 		{
-			dialog = gtk_message_dialog_new (GTK_WINDOW (gtk_builder_get_object (priv->commons->gtkbuilder, "w_main")),
+			dialog = gtk_message_dialog_new (priv->selection ? GTK_WINDOW (priv->widget) :GTK_WINDOW (gtk_builder_get_object (priv->commons->gtkbuilder, "w_main")),
 			                                 GTK_DIALOG_DESTROY_WITH_PARENT,
 			                                 GTK_MESSAGE_QUESTION,
 			                                 GTK_BUTTONS_YES_NO,
@@ -345,7 +396,7 @@ resources_on_btn_delete_clicked (GtkButton *button,
 
 					if (stmt == NULL || error != NULL)
 						{
-							dialog = gtk_message_dialog_new (GTK_WINDOW (gtk_builder_get_object (priv->commons->gtkbuilder, "w_main")),
+							dialog = gtk_message_dialog_new (priv->selection ? GTK_WINDOW (priv->widget) :GTK_WINDOW (gtk_builder_get_object (priv->commons->gtkbuilder, "w_main")),
 							                                 GTK_DIALOG_DESTROY_WITH_PARENT,
 							                                 GTK_MESSAGE_WARNING,
 							                                 GTK_BUTTONS_OK,
@@ -359,7 +410,7 @@ resources_on_btn_delete_clicked (GtkButton *button,
 					error = NULL;
 					if (gda_connection_statement_execute_non_select (priv->commons->gdacon, stmt, NULL, NULL, &error) <= 0)
 						{
-							dialog = gtk_message_dialog_new (GTK_WINDOW (gtk_builder_get_object (priv->commons->gtkbuilder, "w_main")),
+							dialog = gtk_message_dialog_new (priv->selection ? GTK_WINDOW (priv->widget) :GTK_WINDOW (gtk_builder_get_object (priv->commons->gtkbuilder, "w_main")),
 							                                 GTK_DIALOG_DESTROY_WITH_PARENT,
 							                                 GTK_MESSAGE_WARNING,
 							                                 GTK_BUTTONS_OK,
@@ -369,12 +420,12 @@ resources_on_btn_delete_clicked (GtkButton *button,
 							gtk_widget_destroy (dialog);
 						}
 
-					resources_load (resources);
+					autoz_gui_resources_load (resources);
 				}
 		}
 	else
 		{
-			dialog = gtk_message_dialog_new (GTK_WINDOW (gtk_builder_get_object (priv->commons->gtkbuilder, "w_main")),
+			dialog = gtk_message_dialog_new (priv->selection ? GTK_WINDOW (priv->widget) :GTK_WINDOW (gtk_builder_get_object (priv->commons->gtkbuilder, "w_main")),
 			                                 GTK_DIALOG_DESTROY_WITH_PARENT,
 			                                 GTK_MESSAGE_WARNING,
 			                                 GTK_BUTTONS_OK,
@@ -385,12 +436,19 @@ resources_on_btn_delete_clicked (GtkButton *button,
 }
 
 static void
-resources_on_trv_resources_row_activated (GtkTreeView *tree_view,
+autoz_gui_resources_on_trv_autoz_gui_resources_row_activated (GtkTreeView *tree_view,
                                              GtkTreePath *tree_path,
                                              GtkTreeViewColumn *column,
                                              gpointer user_data)
 {
-	ResourcesPrivate *priv = RESOURCES_GET_PRIVATE ((Resources *)user_data);
+	AutozGuiResourcesPrivate *priv = AUTOZ_GUI_RESOURCES_GET_PRIVATE ((AutozGuiResources *)user_data);
 
-	resources_edit ((Resources *)user_data);
+	if (priv->selection)
+		{
+			autoz_gui_resources_selected ((AutozGuiResources *)user_data);
+		}
+	else
+		{
+			autoz_gui_resources_edit ((AutozGuiResources *)user_data);
+		}
 }

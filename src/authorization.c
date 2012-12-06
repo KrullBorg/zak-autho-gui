@@ -24,41 +24,41 @@
 #include "roles.h"
 #include "resources.h"
 
-static void authorization_class_init (AuthorizationClass *klass);
-static void authorization_init (Authorization *authorization);
+static void autoz_gui_authorization_class_init (AutozGuiAuthorizationClass *klass);
+static void autoz_gui_authorization_init (AutozGuiAuthorization *authorization);
 
-static void authorization_load (Authorization *authorization);
-static void authorization_save (Authorization *authorization);
+static void autoz_gui_authorization_load (AutozGuiAuthorization *authorization);
+static void autoz_gui_authorization_save (AutozGuiAuthorization *authorization);
 
-static void authorization_fill_role (Authorization *authorization);
-static void authorization_fill_resource (Authorization *authorization);
+static void autoz_gui_authorization_fill_role (AutozGuiAuthorization *authorization);
+static void autoz_gui_authorization_fill_resource (AutozGuiAuthorization *authorization);
 
-static void authorization_on_role_selected (gpointer instance, guint id, gpointer user_data);
-static void authorization_on_resource_selected (gpointer instance, guint id, gpointer user_data);
+static void autoz_gui_authorization_on_role_selected (gpointer instance, guint id, gpointer user_data);
+static void autoz_gui_authorization_on_resource_selected (gpointer instance, guint id, gpointer user_data);
 
-static void authorization_set_property (GObject *object,
+static void autoz_gui_authorization_set_property (GObject *object,
                                      guint property_id,
                                      const GValue *value,
                                      GParamSpec *pspec);
-static void authorization_get_property (GObject *object,
+static void autoz_gui_authorization_get_property (GObject *object,
                                      guint property_id,
                                      GValue *value,
                                      GParamSpec *pspec);
 
-static void authorization_on_btn_role_clicked (GtkButton *button,
+static void autoz_gui_authorization_on_btn_role_clicked (GtkButton *button,
                                     gpointer user_data);
-static void authorization_on_btn_resource_clicked (GtkButton *button,
+static void autoz_gui_authorization_on_btn_resource_clicked (GtkButton *button,
                                     gpointer user_data);
 
-static void authorization_on_btn_cancel_clicked (GtkButton *button,
+static void autoz_gui_authorization_on_btn_cancel_clicked (GtkButton *button,
                                     gpointer user_data);
-static void authorization_on_btn_save_clicked (GtkButton *button,
+static void autoz_gui_authorization_on_btn_save_clicked (GtkButton *button,
                                   gpointer user_data);
 
-#define AUTHORIZATION_GET_PRIVATE(obj) (G_TYPE_INSTANCE_GET_PRIVATE ((obj), TYPE_AUTHORIZATION, AuthorizationPrivate))
+#define AUTOZ_GUI_AUTHORIZATION_GET_PRIVATE(obj) (G_TYPE_INSTANCE_GET_PRIVATE ((obj), TYPE_AUTOZ_GUI_AUTHORIZATION, AutozGuiAuthorizationPrivate))
 
-typedef struct _AuthorizationPrivate AuthorizationPrivate;
-struct _AuthorizationPrivate
+typedef struct _AutozGuiAuthorizationPrivate AutozGuiAuthorizationPrivate;
+struct _AutozGuiAuthorizationPrivate
 	{
 		AutozGuiCommons *commons;
 
@@ -67,20 +67,20 @@ struct _AuthorizationPrivate
 		gint id;
 	};
 
-G_DEFINE_TYPE (Authorization, authorization, G_TYPE_OBJECT)
+G_DEFINE_TYPE (AutozGuiAuthorization, autoz_gui_authorization, G_TYPE_OBJECT)
 
 static void
-authorization_class_init (AuthorizationClass *klass)
+autoz_gui_authorization_class_init (AutozGuiAuthorizationClass *klass)
 {
 	GObjectClass *object_class = G_OBJECT_CLASS (klass);
 
-	g_type_class_add_private (object_class, sizeof (AuthorizationPrivate));
+	g_type_class_add_private (object_class, sizeof (AutozGuiAuthorizationPrivate));
 
-	object_class->set_property = authorization_set_property;
-	object_class->get_property = authorization_get_property;
+	object_class->set_property = autoz_gui_authorization_set_property;
+	object_class->get_property = autoz_gui_authorization_get_property;
 
 	/**
-	 * Authorization::updated:
+	 * AutozGuiAuthorization::updated:
 	 * @authorization:
 	 *
 	 */
@@ -96,26 +96,26 @@ authorization_class_init (AuthorizationClass *klass)
 }
 
 static void
-authorization_init (Authorization *authorization)
+autoz_gui_authorization_init (AutozGuiAuthorization *authorization)
 {
-	AuthorizationPrivate *priv = AUTHORIZATION_GET_PRIVATE (authorization);
+	AutozGuiAuthorizationPrivate *priv = AUTOZ_GUI_AUTHORIZATION_GET_PRIVATE (authorization);
 }
 
 /**
- * authorization_new:
+ * autoz_gui_authorization_new:
  * @commons:
  * @id:
  *
- * Returns: the newly created #Authorization object.
+ * Returns: the newly created #AutozGuiAuthorization object.
  */
-Authorization
-*authorization_new (AutozGuiCommons *commons, gint id)
+AutozGuiAuthorization
+*autoz_gui_authorization_new (AutozGuiCommons *commons, gint id)
 {
 	GError *error;
 
-	Authorization *a = AUTHORIZATION (g_object_new (authorization_get_type (), NULL));
+	AutozGuiAuthorization *a = AUTOZ_GUI_AUTHORIZATION (g_object_new (autoz_gui_authorization_get_type (), NULL));
 
-	AuthorizationPrivate *priv = AUTHORIZATION_GET_PRIVATE (a);
+	AutozGuiAuthorizationPrivate *priv = AUTOZ_GUI_AUTHORIZATION_GET_PRIVATE (a);
 
 	priv->commons = commons;
 
@@ -132,14 +132,14 @@ Authorization
 	priv->w = GTK_WIDGET (gtk_builder_get_object (priv->commons->gtkbuilder, "w_authorization"));
 
 	g_signal_connect (gtk_builder_get_object (priv->commons->gtkbuilder, "button23"),
-	                  "clicked", G_CALLBACK (authorization_on_btn_role_clicked), (gpointer *)a);
+	                  "clicked", G_CALLBACK (autoz_gui_authorization_on_btn_role_clicked), (gpointer)a);
 	g_signal_connect (gtk_builder_get_object (priv->commons->gtkbuilder, "button22"),
-	                  "clicked", G_CALLBACK (authorization_on_btn_resource_clicked), (gpointer *)a);
+	                  "clicked", G_CALLBACK (autoz_gui_authorization_on_btn_resource_clicked), (gpointer)a);
 
 	g_signal_connect (gtk_builder_get_object (priv->commons->gtkbuilder, "button20"),
-	                  "clicked", G_CALLBACK (authorization_on_btn_cancel_clicked), (gpointer *)a);
+	                  "clicked", G_CALLBACK (autoz_gui_authorization_on_btn_cancel_clicked), (gpointer)a);
 	g_signal_connect (gtk_builder_get_object (priv->commons->gtkbuilder, "button21"),
-	                  "clicked", G_CALLBACK (authorization_on_btn_save_clicked), (gpointer *)a);
+	                  "clicked", G_CALLBACK (autoz_gui_authorization_on_btn_save_clicked), (gpointer)a);
 
 	priv->id = id;
 	if (priv->id == 0)
@@ -150,30 +150,30 @@ Authorization
 		{
 			gtk_label_set_text (GTK_LABEL (gtk_builder_get_object (priv->commons->gtkbuilder, "label12")),
 			                    g_strdup_printf ("%d", priv->id));
-			authorization_load (a);
+			autoz_gui_authorization_load (a);
 		}
 
 	return a;
 }
 
 /**
- * authorization_get_widget:
+ * autoz_gui_authorization_get_widget:
  * @authorization:
  *
  */
 GtkWidget
-*authorization_get_widget (Authorization *authorization)
+*autoz_gui_authorization_get_widget (AutozGuiAuthorization *authorization)
 {
-	AuthorizationPrivate *priv = AUTHORIZATION_GET_PRIVATE (authorization);
+	AutozGuiAuthorizationPrivate *priv = AUTOZ_GUI_AUTHORIZATION_GET_PRIVATE (authorization);
 
 	return priv->w;
 }
 
 /* PRIVATE */
 static void
-authorization_load (Authorization *authorization)
+autoz_gui_authorization_load (AutozGuiAuthorization *authorization)
 {
-	AuthorizationPrivate *priv = AUTHORIZATION_GET_PRIVATE (authorization);
+	AutozGuiAuthorizationPrivate *priv = AUTOZ_GUI_AUTHORIZATION_GET_PRIVATE (authorization);
 
 	GError *error;
 	gchar *sql;
@@ -205,8 +205,8 @@ authorization_load (Authorization *authorization)
 					gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (gtk_builder_get_object (priv->commons->gtkbuilder, "radiobutton2")), TRUE);
 				}
 
-			authorization_fill_role (authorization);
-			authorization_fill_resource (authorization);
+			autoz_gui_authorization_fill_role (authorization);
+			autoz_gui_authorization_fill_resource (authorization);
 		}
 	else
 		{
@@ -223,7 +223,7 @@ authorization_load (Authorization *authorization)
 }
 
 static void
-authorization_save (Authorization *authorization)
+autoz_gui_authorization_save (AutozGuiAuthorization *authorization)
 {
 	const GdaDsnInfo *info;
 	GError *error;
@@ -234,9 +234,9 @@ authorization_save (Authorization *authorization)
 
 	guint type;
 
-	AuthorizationClass *klass = AUTHORIZATION_GET_CLASS (authorization);
+	AutozGuiAuthorizationClass *klass = AUTOZ_GUI_AUTHORIZATION_GET_CLASS (authorization);
 
-	AuthorizationPrivate *priv = AUTHORIZATION_GET_PRIVATE (authorization);
+	AutozGuiAuthorizationPrivate *priv = AUTOZ_GUI_AUTHORIZATION_GET_PRIVATE (authorization);
 
 	if (gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON (gtk_builder_get_object (priv->commons->gtkbuilder, "radiobutton1"))))
 		{
@@ -295,7 +295,7 @@ authorization_save (Authorization *authorization)
 			                       " SET"
 			                       " id_roles = %d,"
 			                       " id_resources = %d,"
-			                       " type = %d,"
+			                       " type = %d"
 			                       " WHERE id = %d",
 			                       priv->commons->prefix,
 			                       strtol (gtk_label_get_text (GTK_LABEL (gtk_builder_get_object (priv->commons->gtkbuilder, "label15"))), NULL, 10),
@@ -345,14 +345,14 @@ authorization_save (Authorization *authorization)
 }
 
 static void
-authorization_fill_role (Authorization *authorization)
+autoz_gui_authorization_fill_role (AutozGuiAuthorization *authorization)
 {
 	GError *error;
 	gchar *sql;
 	GdaStatement *stmt;
 	GdaDataModel *dm;
 
-	AuthorizationPrivate *priv = AUTHORIZATION_GET_PRIVATE (authorization);
+	AutozGuiAuthorizationPrivate *priv = AUTOZ_GUI_AUTHORIZATION_GET_PRIVATE (authorization);
 
 	sql = g_strdup_printf ("SELECT role_id"
 	                       " FROM %sroles"
@@ -377,14 +377,14 @@ authorization_fill_role (Authorization *authorization)
 }
 
 static void
-authorization_fill_resource (Authorization *authorization)
+autoz_gui_authorization_fill_resource (AutozGuiAuthorization *authorization)
 {
 	GError *error;
 	gchar *sql;
 	GdaStatement *stmt;
 	GdaDataModel *dm;
 
-	AuthorizationPrivate *priv = AUTHORIZATION_GET_PRIVATE (authorization);
+	AutozGuiAuthorizationPrivate *priv = AUTOZ_GUI_AUTHORIZATION_GET_PRIVATE (authorization);
 
 	sql = g_strdup_printf ("SELECT resource_id"
 	                       " FROM %sresources"
@@ -409,30 +409,34 @@ authorization_fill_resource (Authorization *authorization)
 }
 
 static void
-authorization_on_role_selected (gpointer instance, guint id, gpointer user_data)
+autoz_gui_authorization_on_role_selected (gpointer instance, guint id, gpointer user_data)
 {
-	Authorization *authorization = AUTHORIZATION (instance);
-	AuthorizationPrivate *priv = AUTHORIZATION_GET_PRIVATE (authorization);
+	AutozGuiAuthorization *authorization = AUTOZ_GUI_AUTHORIZATION (user_data);
+	AutozGuiAuthorizationPrivate *priv = AUTOZ_GUI_AUTHORIZATION_GET_PRIVATE (authorization);
 
 	gtk_label_set_text (GTK_LABEL (gtk_builder_get_object (priv->commons->gtkbuilder, "label15")),
 	                    g_strdup_printf ("%d", id));
+
+	autoz_gui_authorization_fill_role (authorization);
 }
 
 static void
-authorization_on_resource_selected (gpointer instance, guint id, gpointer user_data)
+autoz_gui_authorization_on_resource_selected (gpointer instance, guint id, gpointer user_data)
 {
-	Authorization *authorization = AUTHORIZATION (instance);
-	AuthorizationPrivate *priv = AUTHORIZATION_GET_PRIVATE (authorization);
+	AutozGuiAuthorization *authorization = AUTOZ_GUI_AUTHORIZATION (user_data);
+	AutozGuiAuthorizationPrivate *priv = AUTOZ_GUI_AUTHORIZATION_GET_PRIVATE (authorization);
 
 	gtk_label_set_text (GTK_LABEL (gtk_builder_get_object (priv->commons->gtkbuilder, "label14")),
 	                    g_strdup_printf ("%d", id));
+
+	autoz_gui_authorization_fill_resource (authorization);
 }
 
 static void
-authorization_set_property (GObject *object, guint property_id, const GValue *value, GParamSpec *pspec)
+autoz_gui_authorization_set_property (GObject *object, guint property_id, const GValue *value, GParamSpec *pspec)
 {
-	Authorization *authorization = AUTHORIZATION (object);
-	AuthorizationPrivate *priv = AUTHORIZATION_GET_PRIVATE (authorization);
+	AutozGuiAuthorization *authorization = AUTOZ_GUI_AUTHORIZATION (object);
+	AutozGuiAuthorizationPrivate *priv = AUTOZ_GUI_AUTHORIZATION_GET_PRIVATE (authorization);
 
 	switch (property_id)
 		{
@@ -443,10 +447,10 @@ authorization_set_property (GObject *object, guint property_id, const GValue *va
 }
 
 static void
-authorization_get_property (GObject *object, guint property_id, GValue *value, GParamSpec *pspec)
+autoz_gui_authorization_get_property (GObject *object, guint property_id, GValue *value, GParamSpec *pspec)
 {
-	Authorization *authorization = AUTHORIZATION (object);
-	AuthorizationPrivate *priv = AUTHORIZATION_GET_PRIVATE (authorization);
+	AutozGuiAuthorization *authorization = AUTOZ_GUI_AUTHORIZATION (object);
+	AutozGuiAuthorizationPrivate *priv = AUTOZ_GUI_AUTHORIZATION_GET_PRIVATE (authorization);
 
 	switch (property_id)
 		{
@@ -458,57 +462,57 @@ authorization_get_property (GObject *object, guint property_id, GValue *value, G
 
 /* CALLBACK */
 static void
-authorization_on_btn_role_clicked (GtkButton *button,
+autoz_gui_authorization_on_btn_role_clicked (GtkButton *button,
                         gpointer user_data)
 {
 	GtkWidget *w;
 
-	Authorization *authorization = (Authorization *)user_data;
-	AuthorizationPrivate *priv = AUTHORIZATION_GET_PRIVATE (authorization);
+	AutozGuiAuthorization *authorization = (AutozGuiAuthorization *)user_data;
+	AutozGuiAuthorizationPrivate *priv = AUTOZ_GUI_AUTHORIZATION_GET_PRIVATE (authorization);
 
-	Roles *c = roles_new (priv->commons, TRUE);
+	AutozGuiRoles *c = autoz_gui_roles_new (priv->commons, TRUE);
 
-	g_signal_connect (G_OBJECT (c), "selezionato",
-	                  G_CALLBACK (authorization_on_role_selected), user_data);
+	g_signal_connect (G_OBJECT (c), "selected",
+	                  G_CALLBACK (autoz_gui_authorization_on_role_selected), user_data);
 
-	w = roles_get_widget (c);
+	w = autoz_gui_roles_get_widget (c);
 	gtk_window_set_transient_for (GTK_WINDOW (w), GTK_WINDOW (priv->w));
 	gtk_widget_show (w);
 }
 
 static void
-authorization_on_btn_resource_clicked (GtkButton *button,
+autoz_gui_authorization_on_btn_resource_clicked (GtkButton *button,
                         gpointer user_data)
 {
 	GtkWidget *w;
 
-	Authorization *authorization = (Authorization *)user_data;
-	AuthorizationPrivate *priv = AUTHORIZATION_GET_PRIVATE (authorization);
+	AutozGuiAuthorization *authorization = (AutozGuiAuthorization *)user_data;
+	AutozGuiAuthorizationPrivate *priv = AUTOZ_GUI_AUTHORIZATION_GET_PRIVATE (authorization);
 
-	Resources *c = resources_new (priv->commons, TRUE);
+	AutozGuiResources *c = autoz_gui_resources_new (priv->commons, TRUE);
 
-	g_signal_connect (G_OBJECT (c), "selezionato",
-	                  G_CALLBACK (authorization_on_resource_selected), user_data);
+	g_signal_connect (G_OBJECT (c), "selected",
+	                  G_CALLBACK (autoz_gui_authorization_on_resource_selected), user_data);
 
-	w = resources_get_widget (c);
+	w = autoz_gui_resources_get_widget (c);
 	gtk_window_set_transient_for (GTK_WINDOW (w), GTK_WINDOW (priv->w));
 	gtk_widget_show (w);
 }
 
 static void
-authorization_on_btn_cancel_clicked (GtkButton *button,
+autoz_gui_authorization_on_btn_cancel_clicked (GtkButton *button,
                         gpointer user_data)
 {
-	Authorization *authorization = (Authorization *)user_data;
+	AutozGuiAuthorization *authorization = (AutozGuiAuthorization *)user_data;
 
-	AuthorizationPrivate *priv = AUTHORIZATION_GET_PRIVATE (authorization);
+	AutozGuiAuthorizationPrivate *priv = AUTOZ_GUI_AUTHORIZATION_GET_PRIVATE (authorization);
 
 	gtk_widget_destroy (priv->w);
 }
 
 static void
-authorization_on_btn_save_clicked (GtkButton *button,
+autoz_gui_authorization_on_btn_save_clicked (GtkButton *button,
                       gpointer user_data)
 {
-	authorization_save ((Authorization *)user_data);
+	autoz_gui_authorization_save ((AutozGuiAuthorization *)user_data);
 }
