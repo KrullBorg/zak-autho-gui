@@ -47,7 +47,7 @@ static void resource_on_btn_save_clicked (GtkButton *button,
 typedef struct _ResourcePrivate ResourcePrivate;
 struct _ResourcePrivate
 	{
-		Commons *commons;
+		AutozGuiCommons *commons;
 
 		GtkWidget *w;
 
@@ -96,7 +96,7 @@ resource_init (Resource *resource)
  * Returns: the newly created #Resource object.
  */
 Resource
-*resource_new (Commons *commons, gint id)
+*resource_new (AutozGuiCommons *commons, gint id)
 {
 	GError *error;
 

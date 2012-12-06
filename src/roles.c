@@ -63,7 +63,7 @@ enum
 typedef struct _RolesPrivate RolesPrivate;
 struct _RolesPrivate
 	{
-		Commons *commons;
+		AutozGuiCommons *commons;
 
 		GtkWidget *widget;
 
@@ -98,7 +98,7 @@ roles_init (Roles *roles)
  * Returns: the newly created #Roles object.
  */
 Roles
-*roles_new (Commons *commons, gboolean selection)
+*roles_new (AutozGuiCommons *commons, gboolean selection)
 {
 	GError *error;
 

@@ -55,7 +55,7 @@ struct _RoleClass
 
 GType role_get_type (void) G_GNUC_CONST;
 
-Role *role_new (Commons *commons, gint id);
+Role *role_new (AutozGuiCommons *commons, gint id);
 
 GtkWidget *role_get_widget (Role *role);
 

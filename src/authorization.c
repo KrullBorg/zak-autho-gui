@@ -60,7 +60,7 @@ static void authorization_on_btn_save_clicked (GtkButton *button,
 typedef struct _AuthorizationPrivate AuthorizationPrivate;
 struct _AuthorizationPrivate
 	{
-		Commons *commons;
+		AutozGuiCommons *commons;
 
 		GtkWidget *w;
 
@@ -109,7 +109,7 @@ authorization_init (Authorization *authorization)
  * Returns: the newly created #Authorization object.
  */
 Authorization
-*authorization_new (Commons *commons, gint id)
+*authorization_new (AutozGuiCommons *commons, gint id)
 {
 	GError *error;
 

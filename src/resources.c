@@ -63,7 +63,7 @@ enum
 typedef struct _ResourcesPrivate ResourcesPrivate;
 struct _ResourcesPrivate
 	{
-		Commons *commons;
+		AutozGuiCommons *commons;
 
 		GtkWidget *widget;
 
@@ -98,7 +98,7 @@ resources_init (Resources *resources)
  * Returns: the newly created #Resources object.
  */
 Resources
-*resources_new (Commons *commons, gboolean selection)
+*resources_new (AutozGuiCommons *commons, gboolean selection)
 {
 	GError *error;
 

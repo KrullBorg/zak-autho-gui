@@ -53,7 +53,7 @@ struct _RolesClass
 
 GType roles_get_type (void) G_GNUC_CONST;
 
-Roles *roles_new (Commons *commons, gboolean selection);
+Roles *roles_new (AutozGuiCommons *commons, gboolean selection);
 
 GtkWidget *roles_get_widget (Roles *roles);
 

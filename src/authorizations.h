@@ -53,7 +53,7 @@ struct _AuthorizationsClass
 
 GType authorizations_get_type (void) G_GNUC_CONST;
 
-Authorizations *authorizations_new (Commons *commons, gboolean selection);
+Authorizations *authorizations_new (AutozGuiCommons *commons, gboolean selection);
 
 GtkWidget *authorizations_get_widget (Authorizations *authorizations);
 

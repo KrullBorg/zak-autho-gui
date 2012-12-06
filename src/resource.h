@@ -55,7 +55,7 @@ struct _ResourceClass
 
 GType resource_get_type (void) G_GNUC_CONST;
 
-Resource *resource_new (Commons *commons, gint id);
+Resource *resource_new (AutozGuiCommons *commons, gint id);
 
 GtkWidget *resource_get_widget (Resource *resource);
 

@@ -53,7 +53,7 @@ struct _ResourcesClass
 
 GType resources_get_type (void) G_GNUC_CONST;
 
-Resources *resources_new (Commons *commons, gboolean selection);
+Resources *resources_new (AutozGuiCommons *commons, gboolean selection);
 
 GtkWidget *resources_get_widget (Resources *resources);
 

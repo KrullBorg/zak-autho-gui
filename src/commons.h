@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011 Andrea Zagli <azagli@libero.it>
+ * Copyright (C) 2011-2012 Andrea Zagli <azagli@libero.it>
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -20,8 +20,8 @@
 	#include <config.h>
 #endif
 
-#ifndef __COMMONS_H__
-#define __COMMONS_H__
+#ifndef __AUTOZ_GUI_COMMONS_H__
+#define __AUTOZ_GUI_COMMONS_H__
 
 #include <gtk/gtk.h>
 
@@ -38,6 +38,6 @@ typedef struct
 		GdaSqlParser *gdaparser;
 
 		gchar *prefix;
-	} Commons;
+	} AutozGuiCommons;
 
-#endif /* __COMMONS_H__ */
+#endif /* __AUTOZ_GUI_COMMONS_H__ */

@@ -47,7 +47,7 @@ static void open_audit_ds_on_btn_open_clicked (GtkButton *button,
 typedef struct _OpenAuditDSPrivate OpenAuditDSPrivate;
 struct _OpenAuditDSPrivate
 	{
-		Commons *commons;
+		AutozGuiCommons *commons;
 
 		GtkWidget *w;
 		GtkWidget *wlogin;
@@ -95,7 +95,7 @@ open_audit_ds_init (OpenAuditDS *open_audit_ds)
  * Returns: the newly created #OpenAuditDS object.
  */
 OpenAuditDS
-*open_audit_ds_new (Commons *commons)
+*open_audit_ds_new (AutozGuiCommons *commons)
 {
 	GError *error;
 

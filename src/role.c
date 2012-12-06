@@ -47,7 +47,7 @@ static void role_on_btn_save_clicked (GtkButton *button,
 typedef struct _RolePrivate RolePrivate;
 struct _RolePrivate
 	{
-		Commons *commons;
+		AutozGuiCommons *commons;
 
 		GtkWidget *w;
 
@@ -96,7 +96,7 @@ role_init (Role *role)
  * Returns: the newly created #Role object.
  */
 Role
-*role_new (Commons *commons, gint id)
+*role_new (AutozGuiCommons *commons, gint id)
 {
 	GError *error;
 

@@ -36,7 +36,7 @@
 G_MODULE_EXPORT void on_mnu_file_close_activate (GtkMenuItem *menuitem,
                             gpointer user_data);
 
-static Commons *commons;
+static AutozGuiCommons *commons;
 
 static GtkWidget *w;
 static GtkWidget *vbx_body;
@@ -222,7 +222,7 @@ main (int argc, char *argv[])
 	gda_init ();
 
 	/* inizializzazione commons */
-	commons = g_malloc0 (sizeof (Commons));
+	commons = g_malloc0 (sizeof (AutozGuiCommons));
 
 #ifdef G_OS_WIN32
 

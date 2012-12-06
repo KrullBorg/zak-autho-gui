@@ -65,7 +65,7 @@ enum
 typedef struct _AuthorizationsPrivate AuthorizationsPrivate;
 struct _AuthorizationsPrivate
 	{
-		Commons *commons;
+		AutozGuiCommons *commons;
 
 		GtkWidget *widget;
 
@@ -100,7 +100,7 @@ authorizations_init (Authorizations *authorizations)
  * Returns: the newly created #Authorizations object.
  */
 Authorizations
-*authorizations_new (Commons *commons, gboolean selection)
+*authorizations_new (AutozGuiCommons *commons, gboolean selection)
 {
 	GError *error;
 

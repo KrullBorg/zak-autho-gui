@@ -55,7 +55,7 @@ struct _AuthorizationClass
 
 GType authorization_get_type (void) G_GNUC_CONST;
 
-Authorization *authorization_new (Commons *commons, gint id);
+Authorization *authorization_new (AutozGuiCommons *commons, gint id);
 
 GtkWidget *authorization_get_widget (Authorization *authorization);
 

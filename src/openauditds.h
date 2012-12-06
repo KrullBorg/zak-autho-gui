@@ -55,7 +55,7 @@ struct _OpenAuditDSClass
 
 GType open_audit_ds_get_type (void) G_GNUC_CONST;
 
-OpenAuditDS *open_audit_ds_new (Commons *commons);
+OpenAuditDS *open_audit_ds_new (AutozGuiCommons *commons);
 
 GtkWidget *open_audit_ds_get_widget (OpenAuditDS *open_audit_ds);
 
