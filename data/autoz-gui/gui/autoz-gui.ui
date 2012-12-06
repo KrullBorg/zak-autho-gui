@@ -44,9 +44,9 @@
     <columns>
       <!-- column-name id -->
       <column type="guint"/>
-      <!-- column-name resource -->
-      <column type="gchararray"/>
       <!-- column-name role -->
+      <column type="gchararray"/>
+      <!-- column-name resource -->
       <column type="gchararray"/>
       <!-- column-name allow_deny -->
       <column type="gchararray"/>
@@ -410,7 +410,7 @@
                 <property name="search_column">1</property>
                 <child>
                   <object class="GtkTreeViewColumn" id="treeviewcolumn2">
-                    <property name="title">Resource</property>
+                    <property name="title">Role</property>
                     <property name="clickable">True</property>
                     <property name="sort_column_id">1</property>
                     <child>
@@ -423,7 +423,7 @@
                 </child>
                 <child>
                   <object class="GtkTreeViewColumn" id="treeviewcolumn3">
-                    <property name="title">Role</property>
+                    <property name="title">Resource</property>
                     <property name="clickable">True</property>
                     <property name="sort_column_id">2</property>
                     <child>
