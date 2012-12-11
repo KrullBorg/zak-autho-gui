@@ -233,7 +233,8 @@ main (int argc, char *argv[])
 
 	p = strrchr (moddir, G_DIR_SEPARATOR);
 	if (p != NULL
-	    && g_ascii_strcasecmp (p + 1, "src") == 0)
+	    && (g_ascii_strcasecmp (p + 1, "src") == 0
+	        || g_ascii_strcasecmp (p + 1, ".libs") == 0))
 		{
 			commons->guidir = g_strdup (GUIDIR);
 		}

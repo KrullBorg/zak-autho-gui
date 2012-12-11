@@ -14,8 +14,14 @@ AM_MAINTAINER_MODE
 
 AC_CANONICAL_SYSTEM
 
+LT_INIT
+
+AC_LIBTOOL_WIN32_DLL
+
 # Checks for programs.
 AC_PROG_CC
+AC_PROG_LIBTOOL
+AC_PROG_RANLIB
 
 # Checks for libraries.
 PKG_CHECK_MODULES(AUTOZGUI, [libgda-ui-4.0 >= 4.1.0])
@@ -30,8 +36,10 @@ AC_SUBST(AUTOZGUI_LIBS)
 # Checks for library functions.
 
 AC_CONFIG_FILES([
+	libautozgui.pc
 	Makefile
 	src/Makefile
+	library/Makefile
 	data/Makefile
 	data/autoz-gui/Makefile
 	data/autoz-gui/gui/Makefile

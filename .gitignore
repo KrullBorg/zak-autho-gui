@@ -1,6 +1,5 @@
 *.o
 *~
-*.in
 src/autoz-gui
 COPYING
 INSTALL
@@ -21,3 +20,11 @@ src/.deps/
 stamp-h1
 .anjuta*
 *.exe
+libautozgui.pc
+config.h.in
+libtool
+ltmain.sh
+.libs
+*.lo
+*.la
+.deps

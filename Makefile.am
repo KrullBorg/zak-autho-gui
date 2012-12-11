@@ -1,9 +1,14 @@
-SUBDIRS = src data tests
+SUBDIRS = src library data tests
 
 distclean-local:
 	if test "$(srcdir)" = "."; then :; else \
 		rm -f ChangeLog; \
 	fi
+
+EXTRA_DIST = libautozgui.pc.in
+
+pkgconfigdir = $(libdir)/pkgconfig
+pkgconfig_DATA = libautozgui.pc
 
 ChangeLog:
 	@echo Creating $@
