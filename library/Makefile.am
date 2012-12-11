@@ -24,7 +24,7 @@ libautozgui_include_HEADERS = \
                 ../src/authorizations.h \
                 ../src/commons.h \
                 ../src/resource.h \
-                ../src/resource.h \
+                ../src/resources.h \
                 ../src/role.h \
                 ../src/roles.h
 
