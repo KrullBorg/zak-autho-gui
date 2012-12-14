@@ -53,6 +53,11 @@ static void autoz_gui_roles_on_trv_autoz_gui_roles_row_activated (GtkTreeView *t
                                              GtkTreeViewColumn *column,
                                              gpointer user_data);
 
+static void autoz_gui_roles_on_btn_cancel_clicked (GtkButton *button,
+                      gpointer user_data);
+static void autoz_gui_roles_on_btn_ok_clicked (GtkButton *button,
+                      gpointer user_data);
+
 #define AUTOZ_GUI_ROLES_GET_PRIVATE(obj) (G_TYPE_INSTANCE_GET_PRIVATE ((obj), TYPE_AUTOZ_GUI_ROLES, AutozGuiRolesPrivate))
 
 enum
@@ -152,6 +157,11 @@ AutozGuiRoles
 	                  "clicked", G_CALLBACK (autoz_gui_roles_on_btn_delete_clicked), (gpointer)a);
 	g_signal_connect (gtk_builder_get_object (priv->commons->gtkbuilder, "treeview2"),
 	                  "row-activated", G_CALLBACK (autoz_gui_roles_on_trv_autoz_gui_roles_row_activated), (gpointer)a);
+
+	g_signal_connect (gtk_builder_get_object (priv->commons->gtkbuilder, "button10"),
+	                  "clicked", G_CALLBACK (autoz_gui_roles_on_btn_cancel_clicked), (gpointer)a);
+	g_signal_connect (gtk_builder_get_object (priv->commons->gtkbuilder, "button13"),
+	                  "clicked", G_CALLBACK (autoz_gui_roles_on_btn_ok_clicked), (gpointer)a);
 
 	if (!selection)
 		{
@@ -451,4 +461,21 @@ autoz_gui_roles_on_trv_autoz_gui_roles_row_activated (GtkTreeView *tree_view,
 		{
 			autoz_gui_roles_edit ((AutozGuiRoles *)user_data);
 		}
+}
+
+static void
+autoz_gui_roles_on_btn_cancel_clicked (GtkButton *button,
+                      gpointer user_data)
+{
+	AutozGuiRolesPrivate *priv = AUTOZ_GUI_ROLES_GET_PRIVATE ((AutozGuiRoles *)user_data);
+
+	gtk_widget_destroy (priv->widget);
+	g_object_unref (G_OBJECT (user_data));
+}
+
+static void
+autoz_gui_roles_on_btn_ok_clicked (GtkButton *button,
+                      gpointer user_data)
+{
+	autoz_gui_roles_selected ((AutozGuiRoles *)user_data);
 }
