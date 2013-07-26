@@ -6,6 +6,6 @@ includedir=@includedir@
 Name: @PACKAGE_NAME@
 Description: Library with auto-gui interface.
 Version: @PACKAGE_VERSION@
-Requires: libgda-ui-4.0
+Requires: libgda-ui-5.0
 Libs: -L${libdir} -lautozgui
 Cflags: -I${includedir}
