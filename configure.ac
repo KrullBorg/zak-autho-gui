@@ -2,7 +2,7 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ([2.65])
-AC_INIT([autoz-gui], [0.0.5], [azagli@libero.it])
+AC_INIT([zak-autho-gui], [0.0.5], [azagli@libero.it])
 AC_CONFIG_SRCDIR([src/main.c])
 AC_CONFIG_HEADER([config.h])
 
@@ -22,6 +22,7 @@ AC_LIBTOOL_WIN32_DLL
 AC_PROG_CC
 AC_PROG_LIBTOOL
 AC_PROG_RANLIB
+AM_PROG_AR
 
 # Checks for libraries.
 PKG_CHECK_MODULES(AUTOZGUI, [libgda-ui-5.0 >= 5.0.0])
@@ -36,13 +37,13 @@ AC_SUBST(AUTOZGUI_LIBS)
 # Checks for library functions.
 
 AC_CONFIG_FILES([
-	libautozgui.pc
+	libzakauthogui.pc
 	Makefile
 	src/Makefile
 	library/Makefile
 	data/Makefile
-	data/autoz-gui/Makefile
-	data/autoz-gui/gui/Makefile
+	data/zak-autho-gui/Makefile
+	data/zak-autho-gui/gui/Makefile
 	tests/Makefile
 ])
 AC_OUTPUT

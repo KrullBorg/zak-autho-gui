@@ -2,14 +2,14 @@ guidir = $(datadir)/$(PACKAGE)/gui
 
 AM_CPPFLAGS = $(AUTOZGUI_CFLAGS) \
               -DGUIDIR=\""$(guidir)"\" \
-              -DG_LOG_DOMAIN=\"AutozGui\"
+              -DG_LOG_DOMAIN=\"ZakAuthoGui\"
 
 LIBS = $(AUTOZGUI_LIBS) \
        -export-dynamic
 
-lib_LTLIBRARIES = libautozgui.la
+lib_LTLIBRARIES = libzakauthogui.la
 
-libautozgui_la_SOURCES = \
+libzakauthogui_la_SOURCES = \
                 ../src/authorization.c \
                 ../src/authorizations.c \
                 ../src/resource.c \
@@ -17,9 +17,9 @@ libautozgui_la_SOURCES = \
                 ../src/role.c \
                 ../src/roles.c
 
-libautozgui_la_LDFLAGS = -no-undefined
+libzakauthogui_la_LDFLAGS = -no-undefined
 
-libautozgui_include_HEADERS = \
+libzakauthogui_include_HEADERS = \
                 ../src/authorization.h \
                 ../src/authorizations.h \
                 ../src/commons.h \
@@ -28,4 +28,4 @@ libautozgui_include_HEADERS = \
                 ../src/role.h \
                 ../src/roles.h
 
-libautozgui_includedir = $(includedir)/libautozgui
+libzakauthogui_includedir = $(includedir)/libzakauthogui

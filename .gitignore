@@ -1,6 +1,6 @@
 *.o
 *~
-src/autoz-gui
+src/zak-autho-gui
 COPYING
 INSTALL
 Makefile
@@ -20,7 +20,7 @@ src/.deps/
 stamp-h1
 .anjuta*
 *.exe
-libautozgui.pc
+libzakauthogui.pc
 config.h.in
 libtool
 ltmain.sh
@@ -28,3 +28,5 @@ ltmain.sh
 *.lo
 *.la
 .deps
+ar-lib
+compile
