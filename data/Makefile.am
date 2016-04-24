@@ -1,1 +1,1 @@
-SUBDIRS = autoz-gui
+SUBDIRS = zak-autho-gui

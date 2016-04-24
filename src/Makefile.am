@@ -6,9 +6,9 @@ AM_CPPFLAGS = $(AUTOZGUI_CFLAGS) \
 LIBS = $(AUTOZGUI_LIBS) \
        -export-dynamic
 
-bin_PROGRAMS = autoz-gui
+bin_PROGRAMS = zak-autho-gui
 
-autoz_gui_SOURCES = \
+zak_autho_gui_SOURCES = \
                 authorization.c \
                 authorization.h \
                 authorizations.c \

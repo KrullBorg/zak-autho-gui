@@ -5,10 +5,10 @@ distclean-local:
 		rm -f ChangeLog; \
 	fi
 
-EXTRA_DIST = libautozgui.pc.in
+EXTRA_DIST = libzauthogui.pc.in
 
 pkgconfigdir = $(libdir)/pkgconfig
-pkgconfig_DATA = libautozgui.pc
+pkgconfig_DATA = libzakauthogui.pc
 
 ChangeLog:
 	@echo Creating $@
